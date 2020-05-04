@@ -1,9 +1,9 @@
-import {createStore, applyMiddleware, compose} from 'redux';
-import {persistReducer, persistStore} from 'redux-persist';
+import { createStore, applyMiddleware, compose } from 'redux';
+import { persistReducer, persistStore } from 'redux-persist';
 import AsyncStorage from '@react-native-community/async-storage';
-import rootReducer from './rootReducer';
 import createSagaMiddleware from 'redux-saga';
-import appSagas from './sagas/app/appSagas';
+import appSagas from '../sagas/appSagas';
+import rootReducer from './RootReducer';
 
 function configureStore(initialState) {
   let store = {};
@@ -15,14 +15,13 @@ function configureStore(initialState) {
   };
 
   // Debugging Purposes
-  const composeEnhancers =
-    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+  const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
   // Creates sagaMiddleware
   const sagaMiddleware = createSagaMiddleware();
 
   // Mounts middleware to store create function
-  let createStoreWithMiddleware = composeEnhancers(
+  const createStoreWithMiddleware = composeEnhancers(
     applyMiddleware(sagaMiddleware),
   )(createStore);
 

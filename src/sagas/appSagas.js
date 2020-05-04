@@ -1,5 +1,7 @@
 import {put, call, takeEvery, takeLatest, delay} from 'redux-saga/effects';
+import axios from 'axios';
 
+import { ENVIRONMENT } from 'react-native-dotenv'
 import * as actions from '../actions/SagaActions';
 
 export default function* appSagas() {
@@ -7,37 +9,30 @@ export default function* appSagas() {
 }
 
 function* testButtonGet(action) {
-  const data = {payload: action.payload};
-  const fetchPayload = {
-    method: 'GET',
-    mode: 'cors',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+  const requestOptions = {
+    method: "get",
+    url: `http://localhost:5000/`
   };
 
   let response = false;
 
   try {
-    if (window.location.hostname === 'localhost') {
-      response = yield fetch('http://localhost:5000/', fetchPayload);
+    if (ENVIRONMENT === "development") {
+      response = yield axios(requestOptions);
     } else {
       response = yield fetch(
         'https://final-project-ai-wars-backend.herokuapp.com/ping???????????????????????????????????????',
       );
     }
-    if (!response.ok) {
-      throw new Error('ERROR: No Response from backend server');
-    }
   } catch (error) {
     console.log(error);
   }
 
-  if (response.ok) {
-    const data = yield response.json();
-    console.log(data);
-    if (data) {
-      yield put(actions.updateTest1(data));
+  if (response.status === 200) {
+    console.log(response.data);
+
+    if (response.data) {
+      yield put(actions.updateTest1(response.data));
     }
   }
 }
