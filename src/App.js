@@ -7,6 +7,7 @@
  */
 
 import React from 'react';
+import Colours from './helpers/Colours'
 import {
   SafeAreaView,
   StyleSheet,
@@ -25,6 +26,9 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 
 const App: () => React$Node = () => {
+  const hello = "blahhhhhhhhhhhh"
+  debugger
+  console.log(hello)
   return (
     <>
       <StatusBar barStyle="dark-content" />
@@ -35,7 +39,7 @@ const App: () => React$Node = () => {
           <Header />
           {global.HermesInternal == null ? null : (
             <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
+              <Text style={styles.footer}>Engine: Heeeermes</Text>
             </View>
           )}
           <View style={styles.body}>
@@ -74,14 +78,14 @@ const App: () => React$Node = () => {
 
 const styles = StyleSheet.create({
   scrollView: {
-    backgroundColor: Colors.lighter,
+    backgroundColor: Colours.white,
   },
   engine: {
     position: 'absolute',
     right: 0,
   },
   body: {
-    backgroundColor: Colors.white,
+    backgroundColor: Colours.white,
   },
   sectionContainer: {
     marginTop: 32,
@@ -90,19 +94,19 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 24,
     fontWeight: '600',
-    color: Colors.black,
+    color: Colours.black,
   },
   sectionDescription: {
     marginTop: 8,
     fontSize: 18,
     fontWeight: '400',
-    color: Colors.dark,
+    color: Colours.black,
   },
   highlight: {
     fontWeight: '700',
   },
   footer: {
-    color: Colors.dark,
+    color: Colours.black,
     fontSize: 12,
     fontWeight: '600',
     padding: 4,
