@@ -1,35 +1,51 @@
 import axios from 'axios';
+import { AuthenticationActions, DeviceActions } from '../actions/indexActions';
 
 /**
- * Send ssdp message via socket
+ * Manages API for Nanoleaf device
  *
- * @param {dgram.Socket} socket
+ * @param {object} dispatch Redux dispatch
+ * @param {NanoleafDevice} nanoleafDevice
+ * @param {string} [auth = null] Authorization token
  */
 class NanoleafApiManager {
-  constructor(nanoleafDevice, auth = null) {
-    this.nanoleafDevice = nanoleafDevice;
-    if (auth == null) {
-      this.setupUser(ip);
-    }
+  constructor(dispatch, nanoleafDevice) {
+    this.dispatch = dispatch;
+    this.device = nanoleafDevice;
+    this.axiosClient = NanoleafApiManager.createAxiosClient(nanoleafDevice.ip, nanoleafDevice.port);
+    this.dispatch(DeviceActions.addDeviceManager({ manager: this }));
   }
 
-  async setupUser(ip) {
-    const requestOptions = {
-      method: 'post',
-      url: '/api/v1/new',
-      baseURL: `http://${ip}:16021`,
-      json: true,
-    };
+  /**
+ * PRIVATE
+ * Creates Axios instance with specific nanoleaf config
+ *
+ * @param {NanoleafDevice.ip} ip Nanoleaf device port
+ * @param {NanoleafDevice.port} [port = "16021"] nanoleaf port
+ * @returns {Axios.instance} Axios instance with custom config
+ */
+  static createAxiosClient = (ip, port = '16021') => axios.create({
+    baseURL: `http://${ip}:${port}/`,
+  })
 
-    try {
-      const response = await axios(requestOptions);
-      alert(response.data);
-      this.ip = response.data;
-    } catch (err) {
-      const error = err
-      debugger;
-      console.log(err);
+  /**
+ * Checks if Nanoleaf manager has been authenticated
+ *
+ * @returns {Boolean} Boolean
+ */
+  get authenticated() {
+    if (this.device.authToken === null) {
+      return false;
     }
+    return true;
+  }
+
+  /**
+ * Attempts to setup user with nanoleaf device
+ *
+ */
+  async setupUser() {
+    this.dispatch(AuthenticationActions.attemptNanoleafAuthentication(this));
   }
 }
 

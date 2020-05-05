@@ -1,11 +1,11 @@
 const initialState = {
-  test1: null
+  authenticating: false,
 };
 
 export default function AppReducer(state = initialState, action) {
   switch (action.type) {
-    case "UPDATE_TEST_1":
-      return { ...state, test1: action.payload };
+    case "UPDATE_AUTH_ATTEMPT_STATUS":
+      return { ...state, authenticating: action.payload };
     default:
       return state;
   }

@@ -2,8 +2,8 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import { persistReducer, persistStore } from 'redux-persist';
 import AsyncStorage from '@react-native-community/async-storage';
 import createSagaMiddleware from 'redux-saga';
-import appSagas from '../sagas/appSagas';
-import rootReducer from './RootReducer';
+import { authenticationSagas, appSagas } from '../sagas/indexSagas';
+import RootReducer from './RootReducer';
 
 function configureStore(initialState) {
   let store = {};
@@ -29,13 +29,14 @@ function configureStore(initialState) {
   )(createStore);
 
   // Creates persisting storage on local memory using all of the reducers
-  const persistedReducer = persistReducer(persistConfig, rootReducer);
+  const persistedReducer = persistReducer(persistConfig, RootReducer);
 
   // Creates store using the persistedReducer with initial state
   store = createStoreWithMiddleware(persistedReducer, initialState);
 
   // Attach sagas to Saga middleware
   sagaMiddleware.run(appSagas);
+  sagaMiddleware.run(authenticationSagas);
 
   return store;
 }

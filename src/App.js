@@ -65,20 +65,30 @@ const styles = StyleSheet.create({
 });
 
 const App = () => {
+  const dispatch = useDispatch();
+  const managers = useSelector(state => state.deviceManagers.nanoleaf)
+
   if (ENVIRONMENT === 'development') {
-    console.log('Envrionment: Development');
+    console.log('Environment: Development');
     console.log(global.HermesInternal == null ? 'Engine: Default' : 'Engine: Hermes');
   }
 
-  const dispatch = useDispatch();
+  const authenticating = useSelector((state) => state.app.authenticating);
 
   const testFunction = async () => {
-
     const devices = await DeviceDiscoveryManager.discoverNanoleafs();
     console.log(devices);
-    // const nanoleafApiManager = new NanoleafApiManager("192.168.0.2");
+    const nanoleafApiManager = new NanoleafApiManager(dispatch, devices[0]);
+    nanoleafApiManager.setupUser();
+
     // dispatch(testButtonGet());
   };
+
+  const testAuthentication = () => {
+    const manager = managers[Object.keys(managers)[0]]
+
+    console.log(manager.manager.authenticated)
+  }
 
   return (
     <>
@@ -95,7 +105,15 @@ const App = () => {
               }}
               title="Press me"
             />
-
+            <Button
+              onPress={() => {
+                testAuthentication();
+              }}
+              title="Test Authentication"
+            />
+            { authenticating ? (
+              <Text>Authenticating</Text>
+            ) : null}
           </View>
         </ScrollView>
       </SafeAreaView>
