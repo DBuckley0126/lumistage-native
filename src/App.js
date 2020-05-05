@@ -21,6 +21,8 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import { ENVIRONMENT } from 'react-native-dotenv';
 import { testButtonGet } from './actions/AppActions';
+import NanoleafApiManager from './helpers/NanoleafApiManager';
+import DeviceDiscoveryManager from './helpers/DeviceDiscoveryManager';
 import Colours from './helpers/Colours';
 
 const styles = StyleSheet.create({
@@ -68,11 +70,14 @@ const App = () => {
     console.log(global.HermesInternal == null ? 'Engine: Default' : 'Engine: Hermes');
   }
 
-
   const dispatch = useDispatch();
 
-  const testFunction = () => {
-    dispatch(testButtonGet());
+  const testFunction = async () => {
+
+    const devices = await DeviceDiscoveryManager.discoverNanoleafs();
+    console.log(devices);
+    // const nanoleafApiManager = new NanoleafApiManager("192.168.0.2");
+    // dispatch(testButtonGet());
   };
 
   return (
