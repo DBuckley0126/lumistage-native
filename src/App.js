@@ -21,7 +21,7 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import { ENVIRONMENT } from 'react-native-dotenv';
 import { testButtonGet } from './actions/AppActions';
-import NanoleafApiManager from './helpers/NanoleafApiManager';
+import NanoleafManager from './helpers/NanoleafManager';
 import DeviceDiscoveryManager from './helpers/DeviceDiscoveryManager';
 import Colours from './helpers/Colours';
 
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
 
 const App = () => {
   const dispatch = useDispatch();
-  const managers = useSelector(state => state.deviceManagers.nanoleaf)
+  const managers = useSelector((state) => state.deviceManagers.nanoleaf);
 
   if (ENVIRONMENT === 'development') {
     console.log('Environment: Development');
@@ -78,17 +78,19 @@ const App = () => {
   const testFunction = async () => {
     const devices = await DeviceDiscoveryManager.discoverNanoleafs();
     console.log(devices);
-    const nanoleafApiManager = new NanoleafApiManager(dispatch, devices[0]);
-    nanoleafApiManager.setupUser();
+    const nanoleafManager = new NanoleafManager(dispatch, devices[0]);
+    nanoleafManager.setupUser();
 
     // dispatch(testButtonGet());
   };
 
-  const testAuthentication = () => {
-    const manager = managers[Object.keys(managers)[0]]
+  const testAuthentication = async () => {
+    const manager = managers[Object.keys(managers)[0]];
 
-    console.log(manager.manager.authenticated)
-  }
+    console.log(manager.authenticated);
+    const infomation = await manager.lightInfomation;
+    console.log(infomation);
+  };
 
   return (
     <>

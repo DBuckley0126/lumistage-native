@@ -28,11 +28,10 @@ const attemptAuthenticationRequest = async (axiosClient) => {
   });
 
   try {
-    const response = axiosClient.post('api/v1/new');
+    const response = axiosClient.post('new');
     axiosClient.interceptors.response.eject(forbiddenInterceptor);
     return response;
   } catch (err) {
-    debugger;
     return false;
   }
 };
@@ -48,15 +47,17 @@ function* attemptNanoleafAuthentication(action) {
   yield put(AuthenticationActions.updateAuthAttemptStatus(true));
   while (attempts < 10) {
     // eslint-disable-next-line no-await-in-loop
-    response = yield attemptAuthenticationRequest(manager.axiosClient);
+    // response = yield attemptAuthenticationRequest(manager.axiosClient);
+    response = {success: true, authToken: "vGWHW3sgCXM9BcR3KLN5NVFNtU3XlvRF"}
 
     if (response.success) {
+      manager.authentication = response.authToken;
       yield put(AuthenticationActions.updateAuthAttemptStatus(false));
-      manager.device.auth_token = response.auth_token;
       break;
     } else if (!response.isAxiosError) {
       yield delay(1000);
       attempts += 1;
+
     } else {
       console.log("UNKNOWN ISSUE")
     }
