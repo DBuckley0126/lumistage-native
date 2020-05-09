@@ -91,7 +91,7 @@ const App = () => {
     console.log(manager.authenticated);
     const infomation = await manager.lightInfomation;
     console.log(infomation);
-    const powerStatus = await manager.powerStaus;
+    const powerStatus = await manager.powerStatus;
     console.log(powerStatus);
   };
 

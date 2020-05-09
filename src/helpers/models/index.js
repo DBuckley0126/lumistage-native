@@ -1,5 +1,7 @@
-import NanoleafDevice from './NanoleafDevice'
+import NanoleafDevice from './NanoleafDevice';
+import HttpError from './HttpError';
 
 export {
-  NanoleafDevice
+  NanoleafDevice,
+  HttpError,
 }
