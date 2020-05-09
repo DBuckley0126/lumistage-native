@@ -48,7 +48,7 @@ function* attemptNanoleafAuthentication(action) {
   while (attempts < 10) {
     // eslint-disable-next-line no-await-in-loop
     // response = yield attemptAuthenticationRequest(manager.axiosClient);
-    response = {success: true, authToken: "vGWHW3sgCXM9BcR3KLN5NVFNtU3XlvRF"}
+    response = { success: true, authToken: 'vGWHW3sgCXM9BcR3KLN5NVFNtU3XlvRF' };
 
     if (response.success) {
       manager.authentication = response.authToken;
@@ -57,9 +57,8 @@ function* attemptNanoleafAuthentication(action) {
     } else if (!response.isAxiosError) {
       yield delay(1000);
       attempts += 1;
-
     } else {
-      console.log("UNKNOWN ISSUE")
+      console.log('UNKNOWN ISSUE');
     }
     if (attempts === 10) {
       yield put(AuthenticationActions.updateAuthAttemptStatus(false));

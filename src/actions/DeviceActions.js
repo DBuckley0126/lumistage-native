@@ -9,5 +9,5 @@ export const updateDeviceManager = (payload) => ({
   type: 'UPDATE_DEVICE',
   payload: {
     manager: payload.manager,
-  }
+  },
 });

@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign */
 const initialState = {
-  nanoleaf: {},
-  hue: {},
-  lift: {},
+  NANOLEAF: {},
+  HUE: {},
+  LIFT: {},
 };
 
 export default function DeviceManagerReducer(state = initialState, action) {

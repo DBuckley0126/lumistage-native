@@ -7,7 +7,7 @@
  */
 class NanoleafDevice {
   constructor(obj) {
-    this.type = "nanoleaf";
+    this.type = 'NANOLEAF';
     this.uuid = obj.uuid ? obj.uuid : null;
     this.location = obj.location ? new URL(obj.location) : null;
     this.deviceId = obj.deviceId ? obj.deviceId : null;

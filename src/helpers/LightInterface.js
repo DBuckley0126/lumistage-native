@@ -8,13 +8,13 @@ class LightInterface {
       return false;
     }
     switch (this.deviceType) {
-      case 'nanoleaf':
+      case 'NANOLEAF':
         return this.axiosClient.get('').then((response) => response.data).catch((err) => {
           console.log(err);
         });
-      case 'hue':
+      case 'HUE':
         return {};
-      case 'lift':
+      case 'LIFT':
         return {};
       default:
         return false;

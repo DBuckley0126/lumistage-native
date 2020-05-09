@@ -78,7 +78,7 @@ const DeviceDiscoveryManager = {
           }
         }
       });
-      
+
       if (result.uuid && result.location && result.deviceId) {
         devices.push(new NanoleafDevice(result));
       }

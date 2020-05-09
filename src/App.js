@@ -21,7 +21,7 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import { ENVIRONMENT } from 'react-native-dotenv';
 import { testButtonGet } from './actions/AppActions';
-import NanoleafManager from './helpers/NanoleafManager';
+import DeviceManager from './helpers/DeviceManager';
 import DeviceDiscoveryManager from './helpers/DeviceDiscoveryManager';
 import Colours from './helpers/Colours';
 
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
 
 const App = () => {
   const dispatch = useDispatch();
-  const managers = useSelector((state) => state.deviceManagers.nanoleaf);
+  const managers = useSelector((state) => state.deviceManagers.NANOLEAF);
 
   if (ENVIRONMENT === 'development') {
     console.log('Environment: Development');
@@ -78,8 +78,8 @@ const App = () => {
   const testFunction = async () => {
     const devices = await DeviceDiscoveryManager.discoverNanoleafs();
     console.log(devices);
-    const nanoleafManager = new NanoleafManager(dispatch, devices[0]);
-    nanoleafManager.setupUser();
+    const nanoleafDeviceManager = new DeviceManager(dispatch, devices[0]);
+    nanoleafDeviceManager.setupUser();
 
     // dispatch(testButtonGet());
   };
