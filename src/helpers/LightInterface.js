@@ -1,3 +1,5 @@
+import { HttpResponse } from './models/index';
+
 /**
  * Provide functions for light API commands
  *
@@ -6,7 +8,7 @@ class LightInterface {
   /**
  * Retrieves infomation from device
  *
- * @returns {Object} Device infomation
+ * @returns {Promise<HttpResponse>|Promise<HttpError>}
  */
   get lightInfomation() {
     if (!this.authenticated) {
@@ -15,9 +17,7 @@ class LightInterface {
 
     switch (this.type) {
       case 'NANOLEAF':
-        return this.axiosClient.get('').then((response) => response.data).catch((err) => {
-          console.log(err);
-        });
+        return this.axiosClient.get('').then((response) => new HttpResponse(response.status, 'successfully got device infomation', response.data)).catch((err) => err);
       case 'HUE':
         return {};
       case 'LIFT':
@@ -30,7 +30,7 @@ class LightInterface {
   /**
  * Checks if device is powered on
  *
- * @returns {Boolean} True if device is powered on
+ * @returns {Promise<HttpResponse>|Promise<HttpError>}
  */
   get powerStatus() {
     if (!this.authenticated) {
@@ -39,9 +39,7 @@ class LightInterface {
 
     switch (this.type) {
       case 'NANOLEAF':
-        return this.axiosClient.get('state/on').then((response) => response.data.value).catch((err) => {
-          console.log(err);
-        });
+        return this.axiosClient.get('state/on').then((response) => new HttpResponse(response.status, 'successfully got device power status', response.data.value)).catch((err) => err);
       case 'HUE':
         return {};
       case 'LIFT':
@@ -51,31 +49,27 @@ class LightInterface {
     }
   }
 
-    /**
- * Checks if device is powered on
+  /**
+ * Turns the device on
  *
- * @returns {Boolean} True if device is powered on
+ * @returns {Promise<HttpResponse>|Promise<HttpError>}
  */
-get turnOn() {
-  if (!this.authenticated) {
-    return false;
-  }
-
-  switch (this.type) {
-    case 'NANOLEAF':
-      return this.axiosClient.get('state/on').then((response) => response.data.value).catch((err) => {
-        console.log(err);
-      });
-    case 'HUE':
-      return {};
-    case 'LIFT':
-      return {};
-    default:
+  get turnOn() {
+    if (!this.authenticated) {
       return false;
+    }
+
+    switch (this.type) {
+      case 'NANOLEAF':
+        return this.axiosClient.get('state', { on: { value: true } }).then((response) => new HttpResponse(response.status, 'successfully turned on device', response.data)).catch((err) => err);
+      case 'HUE':
+        return {};
+      case 'LIFT':
+        return {};
+      default:
+        return false;
+    }
   }
-}
-
-
 }
 
 export default LightInterface;

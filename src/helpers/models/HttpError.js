@@ -1,4 +1,7 @@
-
+/**
+ * @property {number} status Http error status code
+ * @property {number} message Http error description
+ */
 class HttpError {
   constructor(statusCode, message, info) {
     this.statusCode = statusCode;

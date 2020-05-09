@@ -2,7 +2,7 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import { persistReducer, persistStore } from 'redux-persist';
 import AsyncStorage from '@react-native-community/async-storage';
 import createSagaMiddleware from 'redux-saga';
-import { authenticationSagas, appSagas } from '../sagas/indexSagas';
+import { authenticationSagas, appSagas } from '../sagas/index';
 import RootReducer from './RootReducer';
 
 function configureStore(initialState) {
