@@ -83,6 +83,7 @@ class DeviceManager extends LightInterface {
   /**
  * Attempts to setup user with light device
  *
+ * @returns {Boolean} True if successful dispatch of authentication attempt
  */
   setupUser() {
     switch (this.device.type) {

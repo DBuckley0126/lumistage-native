@@ -5,13 +5,6 @@ export const attemptNanoleafAuthentication = (payload) => {
   };
 };
 
-export const updateAuthAttemptStatus = (payload) => {
-  return {
-    type: 'UPDATE_AUTH_ATTEMPT_STATUS',
-    payload: payload,
-  };
-};
-
 export const updateAuthToken = (payload) => {
   return {
     type: 'UPDATE_AUTH_TOKEN',

@@ -74,9 +74,10 @@ const App = () => {
   }
 
   const authenticating = useSelector((state) => state.app.authenticating);
+  const ssdpSearching = useSelector((state) => state.app.ssdpSearching);
 
   const testFunction = async () => {
-    const devices = await DeviceDiscoveryManager.discoverNanoleafs();
+    const devices = await DeviceDiscoveryManager.discoverNanoleafs(dispatch);
     console.log(devices);
     const nanoleafDeviceManager = new DeviceManager(dispatch, devices[0]);
     nanoleafDeviceManager.setupUser();
@@ -90,6 +91,8 @@ const App = () => {
     console.log(manager.authenticated);
     const infomation = await manager.lightInfomation;
     console.log(infomation);
+    const powerStatus = await manager.powerStaus;
+    console.log(powerStatus);
   };
 
   return (
@@ -115,6 +118,9 @@ const App = () => {
             />
             { authenticating ? (
               <Text>Authenticating</Text>
+            ) : null}
+            { ssdpSearching ? (
+              <Text>Searching for devices</Text>
             ) : null}
           </View>
         </ScrollView>

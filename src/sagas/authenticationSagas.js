@@ -3,7 +3,7 @@ import {
   put, call, takeEvery, takeLatest, delay,
 } from 'redux-saga/effects';
 
-import { AuthenticationActions, DeviceActions } from '../actions/indexActions';
+import { AuthenticationActions, DeviceActions, AppActions } from '../actions/indexActions';
 
 export default function* authenticationSagas() {
   yield takeEvery('ATTEMPT_NANOLEAF_AUTHENTICATION', attemptNanoleafAuthentication);
@@ -44,7 +44,7 @@ function* attemptNanoleafAuthentication(action) {
   const manager = action.payload;
   let attempts = 0;
   let response = null;
-  yield put(AuthenticationActions.updateAuthAttemptStatus(true));
+  yield put(AppActions.updateAuthAttemptStatus(true));
   while (attempts < 10) {
     // eslint-disable-next-line no-await-in-loop
     // response = yield attemptAuthenticationRequest(manager.axiosClient);
@@ -52,7 +52,7 @@ function* attemptNanoleafAuthentication(action) {
 
     if (response.success) {
       manager.authentication = response.authToken;
-      yield put(AuthenticationActions.updateAuthAttemptStatus(false));
+      yield put(AppActions.updateAuthAttemptStatus(false));
       break;
     } else if (!response.isAxiosError) {
       yield delay(1000);
@@ -61,7 +61,7 @@ function* attemptNanoleafAuthentication(action) {
       console.log('UNKNOWN ISSUE');
     }
     if (attempts === 10) {
-      yield put(AuthenticationActions.updateAuthAttemptStatus(false));
+      yield put(AppActions.updateAuthAttemptStatus(false));
     }
     console.log(response);
   }

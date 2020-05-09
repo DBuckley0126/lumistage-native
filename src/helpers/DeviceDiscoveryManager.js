@@ -1,4 +1,5 @@
 import dgram from 'dgram';
+import { AppActions } from '../actions/indexActions';
 import { NanoleafDevice } from './models/index';
 
 const { Buffer } = require('buffer/');
@@ -38,16 +39,19 @@ const broadcastNanoleafSsdp = (socket) => {
   );
 };
 
+
 const DeviceDiscoveryManager = {
   /**
    * Make the search to discover nanoleaf devices
    *
+   * @param {Object} dispatch Redux dispatch
    * @returns {Promise<NanoleafDevice[]>} array of discovered devices
    */
-  discoverNanoleafs: () => {
+  discoverNanoleafs: (dispatch) => {
     const socket = dgram.createSocket('udp4');
     const devices = [];
 
+    dispatch(AppActions.updateSsdpSearchingStatus(true));
     socket.on('listening', () => {
       broadcastNanoleafSsdp(socket);
     });
@@ -89,6 +93,7 @@ const DeviceDiscoveryManager = {
     return new Promise((resolve) => {
       setTimeout(() => {
         socket.close();
+        dispatch(AppActions.updateSsdpSearchingStatus(false));
         resolve(devices);
       }, 3000);
     });
