@@ -1,13 +1,13 @@
+/**
+ * Provide API light interaction
+ *
+ */
 class LightInterface {
-  constructor(deviceType) {
-    this.deviceType = deviceType;
-  }
-
   get lightInfomation() {
     if (!this.authenticated) {
       return false;
     }
-    switch (this.deviceType) {
+    switch (this.type) {
       case 'NANOLEAF':
         return this.axiosClient.get('').then((response) => response.data).catch((err) => {
           console.log(err);

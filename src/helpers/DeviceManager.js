@@ -69,8 +69,16 @@ class DeviceManager extends LightInterface {
   /**
    * Get the authentication token of the device
    *
+   * @returns {String} Device authorization token
    */
   get authentication() { return this.device.authToken; }
+
+  /**
+   * Get the authentication token of the device
+   *
+   * @returns {String} Device type
+   */
+  get type() { return this.device.type; }
 
   /**
  * Attempts to setup user with light device
