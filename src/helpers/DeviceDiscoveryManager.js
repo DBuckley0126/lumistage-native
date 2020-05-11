@@ -32,51 +32,45 @@ const broadcastSsdp = (socket, ip, port, target) => {
   );
 };
 
+
 /**
    * Contains helper functions for local network device discovery
    */
 const DeviceDiscoveryManager = {
   /**
-   * Make the search to discover nanoleaf devices
+   * Discover local Nanoleaf devices using SSDP protocol
    *
    * @param {Object} dispatch - Redux dispatch
    * @returns {Promise<LightDevice[]>} Array of discovered devices
    */
-  discoverNanoleafs: (dispatch) => {
-    const socket = dgram.createSocket('udp4');
-    const devices = [];
-
-    // Configuration of SSDP discovery request headers
+  discoverNanoleafs: async (dispatch) => {
+    // Configuration of nanoleaf SSDP discovery request headers
     const config = {
-      TARGET: 'nanoleaf_aurora:light',
-      SSDP_DEFAULT_IP: '239.255.255.250',
-      SSDP_DEFAULT_PORT: 1900,
+      target: 'nanoleaf_aurora:light',
+      ssdpDefaultIp: '239.255.255.250',
+      ssdpDefaultPort: 1900,
+      type: 'NANOLEAF',
     };
 
-    // Updates SSDP search status
-    dispatch(AppActions.updateSsdpSearchingStatus(true));
+    // Header and Regex for selecting related SSDP response header infomation
+    const headerSelector = {
+      uuid: {
+        header: 'S',
+        matcher: /: uuid:(.*)/,
+      },
+      location: {
+        header: 'Location',
+        matcher: /:\s(.*)/,
+      },
+    };
 
-    // On socket startup broadcast SSDP discovery request
-    socket.on('listening', () => {
-      broadcastSsdp(socket, config.SSDP_DEFAULT_IP, config.SSDP_DEFAULT_PORT, config.TARGET);
-    });
-
-    // On socket receive message push nanoleaf devices found into devices array
-    socket.on('message', (chunk, info) => { // eslint-disable-line no-unused-vars
-      const result = { uuid: null, location: null, type: 'NANOLEAF' };
-      const buffer = Buffer.from(chunk);
-
-      const response = buffer
-        .toString()
-        .trim()
-        .split('\r\n');
-
-      // Checks if type of Nanoleaf device
-      const deviceCheck = response.find((item) => {
+    // Checks is SSDP response is from Nanoleaf Device
+    const deviceChecker = (ssdpResponse) => {
+      const response = ssdpResponse.find((item) => {
         const splitter = item.indexOf(':');
         if (splitter > -1) {
           const key = item.slice(0, splitter);
-          
+
           if (key === 'ST') {
             const value = item.slice(splitter + 2, item.length);
 
@@ -87,6 +81,63 @@ const DeviceDiscoveryManager = {
         }
         return false;
       });
+      return response || false;
+    };
+
+    return DeviceDiscoveryManager.discoverDevices(
+      dispatch,
+      config.target,
+      config.ssdpDefaultIp,
+      config.ssdpDefaultPort,
+      config.type,
+      headerSelector,
+      deviceChecker,
+    );
+  },
+
+  /**
+   * Discover local devices using SSDP protocol
+   *
+   * @param {Object} dispatch - Redux dispatch
+   * @param {string} target - Target service type
+   * @param {string} ssdpDefaultIp - Target IP Address of target device
+   * @param {number} ssdpDefaultPort - Target Port of target device
+   * @param {string} type - Target device type
+   * @param {Object} headerSelector - Infomation for selecting SSDP response headers
+   * @param {string} headerSelector.uuid.header - SSDP response header
+   * @param {Regex} headerSelector.uuid.matcher - Regex to select header data
+   * @param {string} headerSelector.location.header - SSDP response header
+   * @param {Regex} headerSelector.location.matcher - Regex to select header data
+   * @param {Function} [deviceChecker] - Function taking an SSDP response as argument,
+   * returns boolean
+   * @param {number} [sourcePort] - Source port of SSDP request
+   * @param {string} [sourceIp] - Source IP address of SSDP request
+   * @returns {Promise<LightDevice[]>} Array of discovered devices
+   */
+  discoverDevices(dispatch, target, ssdpDefaultIp, ssdpDefaultPort, type, headerSelector, deviceChecker = () => true, sourceIp = '0.0.0.0', sourcePort = 1901) {
+    const socket = dgram.createSocket('udp4');
+    const devices = [];
+
+    // Updates SSDP search status
+    dispatch(AppActions.updateSsdpSearchingStatus(true));
+
+    // On socket startup broadcast SSDP discovery request
+    socket.on('listening', () => {
+      broadcastSsdp(socket, ssdpDefaultIp, ssdpDefaultPort, target);
+    });
+
+    // On socket receive message push nanoleaf devices found into devices array
+    socket.on('message', (chunk, info) => { // eslint-disable-line no-unused-vars
+      const result = { uuid: null, location: null, type };
+      const buffer = Buffer.from(chunk);
+
+      const response = buffer
+        .toString()
+        .trim()
+        .split('\r\n');
+
+      // Checks type of device
+      const deviceCheck = deviceChecker(response);
 
       if (deviceCheck) {
         // For each header of device response, extract useful infomation into LightDevice
@@ -94,13 +145,15 @@ const DeviceDiscoveryManager = {
           const splitter = item.indexOf(':');
 
           if (splitter > -1) {
-            const key = item.slice(0, splitter);
+            const header = item.slice(0, splitter);
             const value = item.slice(splitter, item.length);
 
-            if (key === 'S') {
-              result.uuid = value.slice(7);
-            } else if (key === 'Location') {
-              result.location = value.slice(2);
+            if (header === headerSelector.uuid.header) {
+              // eslint-disable-next-line prefer-destructuring
+              result.uuid = value.match(headerSelector.uuid.matcher)[1];
+            } else if (header === headerSelector.location.header) {
+              // eslint-disable-next-line prefer-destructuring
+              result.location = value.match(headerSelector.location.matcher)[1];
             }
           }
         });
@@ -110,7 +163,7 @@ const DeviceDiscoveryManager = {
       }
     });
 
-    socket.bind(config.SSDP_SOURCE_PORT, config.ANY_IP);
+    socket.bind(sourcePort, sourceIp);
 
     // Timeout after certain amount of time
     return new Promise((resolve) => {
