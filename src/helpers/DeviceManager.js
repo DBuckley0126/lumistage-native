@@ -7,9 +7,8 @@ import LightInterface from './LightInterface';
  * Manages API for light device.
  * Use {@link DeviceManager#authentication} to set authentication token of device.
  *
- * @extends LightInterface
  */
-class DeviceManager extends LightInterface {
+class DeviceManager {
   /**
  * Create a device manager.
  *
@@ -17,10 +16,10 @@ class DeviceManager extends LightInterface {
  * @param {Object} device - A light device
  */
   constructor(dispatch, device) {
-    super();
     this.dispatch = dispatch;
     this.device = device;
     this.axiosClient = DeviceManager.createAxiosClient(device);
+    this.lightInterface = new LightInterface(this);
     this.dispatch(DeviceActions.addDeviceManager(this));
   }
 

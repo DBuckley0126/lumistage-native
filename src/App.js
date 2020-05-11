@@ -89,11 +89,11 @@ const App = () => {
     const manager = managers[Object.keys(managers)[0]];
 
     console.log(manager.authenticated);
-    const infomationResponse = await manager.lightInfomation;
+    const infomationResponse = await manager.lightInterface.lightInfomation;
     console.log(infomationResponse);
-    const powerStatusResponse = await manager.powerStatus;
+    const powerStatusResponse = await manager.lightInterface.powerStatus;
     console.log(powerStatusResponse);
-    const turnOnResponse = await manager.turnOn;
+    const turnOnResponse = await manager.lightInterface.turnOn;
     console.log(turnOnResponse);
   };
 

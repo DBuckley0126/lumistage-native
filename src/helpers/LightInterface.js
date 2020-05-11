@@ -8,18 +8,28 @@ import { HttpError } from './models/index';
  */
 class LightInterface {
   /**
+ * Create a device manager
+ *
+ * @param {import('./DeviceManager').default} deviceManager - Device Manager
+ */
+  constructor(deviceManager) {
+    this.deviceManager = deviceManager;
+  }
+
+  /**
  * Retrieves infomation from device
  *
- * @returns {(Promise<HttpResponse>|Promise<HttpError>|false)} Returns false if device not authenticated
+ * @returns {(Promise<HttpResponse>|Promise<HttpError>|false)} Returns false
+ * if device not authenticated
  */
   get lightInfomation() {
-    if (!this.authenticated) {
+    if (!this.deviceManager.authenticated) {
       return false;
     }
 
-    switch (this.type) {
+    switch (this.deviceManager.type) {
       case 'NANOLEAF':
-        return this.axiosClient.get('').then((response) => new HttpResponse(response.status, 'successfully got device infomation', response.data)).catch((err) => err);
+        return this.deviceManager.axiosClient.get('').then((response) => new HttpResponse(response.status, 'successfully got device infomation', response.data)).catch((err) => err);
       case 'HUE':
         return {};
       case 'LIFT':
@@ -35,13 +45,13 @@ class LightInterface {
  * @returns {Promise<HttpResponse>|Promise<HttpError>|false} Returns false if device not authenticated
  */
   get powerStatus() {
-    if (!this.authenticated) {
+    if (!this.deviceManager.authenticated) {
       return false;
     }
 
-    switch (this.type) {
+    switch (this.deviceManager.type) {
       case 'NANOLEAF':
-        return this.axiosClient.get('state/on').then((response) => new HttpResponse(response.status, 'successfully got device power status', response.data.value)).catch((err) => err);
+        return this.deviceManager.axiosClient.get('state/on').then((response) => new HttpResponse(response.status, 'successfully got device power status', response.data.value)).catch((err) => err);
       case 'HUE':
         return {};
       case 'LIFT':
@@ -57,13 +67,13 @@ class LightInterface {
  * @returns {Promise<HttpResponse>|Promise<HttpError>|false} Returns false if device not authenticated
  */
   get turnOn() {
-    if (!this.authenticated) {
+    if (!this.deviceManager.authenticated) {
       return false;
     }
 
-    switch (this.type) {
+    switch (this.deviceManager.type) {
       case 'NANOLEAF':
-        return this.axiosClient.get('state', { on: { value: true } }).then((response) => new HttpResponse(response.status, 'successfully turned on device', response.data)).catch((err) => err);
+        return this.deviceManager.axiosClient.get('state', { on: { value: true } }).then((response) => new HttpResponse(response.status, 'successfully turned on device', response.data)).catch((err) => err);
       case 'HUE':
         return {};
       case 'LIFT':

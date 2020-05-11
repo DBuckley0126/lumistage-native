@@ -26,6 +26,8 @@ const attemptAuthenticationRequest = async (axiosClient) => {
 /**
  * Attempt an authorization request cycle with Nanoleaf device
  *
+ * @param {Object} action - Redux action
+ *
  */
 function* attemptNanoleafAuthentication(action) {
   const manager = action.payload;
