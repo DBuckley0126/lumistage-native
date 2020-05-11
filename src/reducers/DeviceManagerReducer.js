@@ -15,10 +15,10 @@ const initialState = {
 export default function DeviceManagerReducer(state = initialState, action) {
   switch (action.type) {
     case 'ADD_DEVICE_MANAGER':
-      state[action.payload.manager.device.type][action.payload.manager.device.uuid] = action.payload.manager;
+      state[action.payload.device.type][action.payload.device.uuid] = action.payload;
       return { ...state };
     case 'UPDATE_DEVICE_MANAGER':
-      state[action.payload.manager.device.type][action.payload.manager.device.uuid] = action.payload.manager;
+      state[action.payload.device.type][action.payload.device.uuid] = action.payload;
       return { ...state };
     default:
       return state;

@@ -38,7 +38,7 @@ function* attemptNanoleafAuthentication(action) {
     try {
     // eslint-disable-next-line no-await-in-loop
       // response = yield attemptAuthenticationRequest(manager.axiosClient);
-      response = { success: true, data: { authToken: 'vGWHW3sgCXM9BcR3KLN5NVFNtU3XlvRF' } };
+      response = { success: true, data: { auth_token: 'vGWHW3sgCXM9BcR3KLN5NVFNtU3XlvRF' } };
 
       // Sets authentication of deivce
       manager.authentication = response.data.auth_token;

@@ -65,10 +65,7 @@ class DeviceManager extends LightInterface {
  * @returns {Boolean} Boolean
  */
   get authenticated() {
-    if (this.device.authToken === null) {
-      return false;
-    }
-    return true;
+    return !!this.device.authToken;
   }
 
   /**

@@ -99,7 +99,7 @@ const DeviceDiscoveryManager = {
       }
     });
 
-    socket.bind(config.nanoleaf.SSDP_SOURCE_PORT, config.nanoleaf.ANY_IP);
+    socket.bind(config.SSDP_SOURCE_PORT, config.ANY_IP);
 
     // Timeout after certain amount of time
     return new Promise((resolve) => {
