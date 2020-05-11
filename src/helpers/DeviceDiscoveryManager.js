@@ -4,58 +4,68 @@ import { NanoleafDevice } from './models/index';
 
 const { Buffer } = require('buffer/');
 
-const config = {
-  nanoleaf: {
-    TARGET: 'nanoleaf_aurora:light',
-    M_SEARCH: 'm-search',
-    SSDP_DEFAULT_IP: '239.255.255.250',
-    ANY_IP: '0.0.0.0',
-    SSDP_DEFAULT_PORT: 1900,
-    SSDP_SOURCE_PORT: 1901,
-    PORT: 16021,
-  },
-};
 
 /**
  * Send ssdp message via socket
  *
- * @param {dgram.Socket} socket
+ * @param {dgram.Socket} socket - Socket to broadcast from
+ * @param {string} ip - SSDP default IP address of device
+ * @param {number} port - SSDP default port of device
+ * @param {string} target - Target of device
+ *
  */
-const broadcastNanoleafSsdp = (socket) => {
+const broadcastSsdp = (socket, ip, port, target) => {
   const query = Buffer.from( // eslint-disable-line no-undef
     'M-SEARCH * HTTP/1.1\r\n'
-      + `HOST: ${config.nanoleaf.SSDP_DEFAULT_IP}:${config.nanoleaf.SSDP_DEFAULT_PORT}\r\n`
+      + `HOST: ${ip}:${port}\r\n`
       + 'MAN: "ssdp:discover"\r\n'
       + 'MX: 1\r\n'
-      + `ST: ${config.nanoleaf.TARGET}\r\n\r\n`,
+      + `ST: ${target}\r\n\r\n`,
   );
 
   socket.send(
     query,
     0,
     query.length,
-    config.nanoleaf.SSDP_DEFAULT_PORT,
-    config.nanoleaf.SSDP_DEFAULT_IP,
+    port,
+    ip,
   );
 };
 
-
+/**
+   * Contains helper functions for local network device discovery
+   */
 const DeviceDiscoveryManager = {
   /**
    * Make the search to discover nanoleaf devices
    *
-   * @param {Object} dispatch Redux dispatch
-   * @returns {Promise<NanoleafDevice[]>} array of discovered devices
+   * @param {Object} dispatch - Redux dispatch
+   * @returns {Promise<NanoleafDevice[]>} Array of discovered devices
    */
   discoverNanoleafs: (dispatch) => {
     const socket = dgram.createSocket('udp4');
     const devices = [];
 
+    // Configuration of SSDP discovery request headers
+    const config = {
+      TARGET: 'nanoleaf_aurora:light',
+      M_SEARCH: 'm-search',
+      SSDP_DEFAULT_IP: '239.255.255.250',
+      ANY_IP: '0.0.0.0',
+      SSDP_DEFAULT_PORT: 1900,
+      SSDP_SOURCE_PORT: 1901,
+      PORT: 16021,
+    };
+
+    // Updates SSDP search status
     dispatch(AppActions.updateSsdpSearchingStatus(true));
+
+    // On socket startup broadcast SSDP discovery request
     socket.on('listening', () => {
-      broadcastNanoleafSsdp(socket);
+      broadcastSsdp(socket, config.SSDP_DEFAULT_IP, config.SSDP_DEFAULT_PORT, config.TARGET);
     });
 
+    // On socket receive message push nanoleaf devices found into devices array
     socket.on('message', (chunk, info) => { // eslint-disable-line no-unused-vars
       const buffer = Buffer.from(chunk);
 
@@ -64,8 +74,9 @@ const DeviceDiscoveryManager = {
         .trim()
         .split('\r\n');
 
-      const result = {};
+      const result = { uuid: null, location: null, deviceId: null };
 
+      // For each header of device response, extract useful infomation into NanoleafDevice
       response.forEach((item) => {
         const splitter = item.indexOf(':');
 
@@ -90,6 +101,7 @@ const DeviceDiscoveryManager = {
 
     socket.bind(config.nanoleaf.SSDP_SOURCE_PORT, config.nanoleaf.ANY_IP);
 
+    // Timeout after certain amount of time
     return new Promise((resolve) => {
       setTimeout(() => {
         socket.close();

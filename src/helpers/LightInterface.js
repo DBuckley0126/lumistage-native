@@ -8,7 +8,7 @@ class LightInterface {
   /**
  * Retrieves infomation from device
  *
- * @returns {Promise<HttpResponse>|Promise<HttpError>}
+ * @returns {(Promise<HttpResponse>|Promise<HttpError>)}
  */
   get lightInfomation() {
     if (!this.authenticated) {

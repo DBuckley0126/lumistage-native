@@ -4,25 +4,31 @@ import ErrorManager from './ErrorManager';
 import LightInterface from './LightInterface';
 
 /**
- * Manages API for light device
+ * Manages API for light device.
+ * Use {@link DeviceManager#authentication} to set authentication token of device.
  *
- * @param {Object} dispatch Redux dispatch
- * @param {Object} device A light device
+ * @extends LightInterface
  */
 class DeviceManager extends LightInterface {
+  /**
+ * Create a device manager.
+ *
+ * @param {Object} dispatch - Redux dispatch
+ * @param {Object} device - A light device
+ */
   constructor(dispatch, device) {
-    super(device.type);
+    super();
     this.dispatch = dispatch;
     this.device = device;
     this.axiosClient = DeviceManager.createAxiosClient(device);
-    this.dispatch(DeviceActions.addDeviceManager({ manager: this }));
+    this.dispatch(DeviceActions.addDeviceManager(this));
   }
 
   /**
  * PRIVATE
  * Creates Axios instance with specific device config
  *
- * @param {Object} device A light device
+ * @param {Object} device - A light device
  * @returns {Object} Axios instance with custom config
  */
   static createAxiosClient = (device) => {
@@ -46,7 +52,10 @@ class DeviceManager extends LightInterface {
       default:
         return false;
     }
-    axiosClient.interceptors.response.use((response) => response, (error) => ErrorManager.axiosErrorHandler(error));
+    axiosClient.interceptors.response.use(
+      (response) => response,
+      (error) => ErrorManager.axiosErrorHandler(error),
+    );
     return axiosClient;
   }
 
@@ -64,32 +73,32 @@ class DeviceManager extends LightInterface {
 
   /**
    * Sets the authentication token of the device
-   * @param {String} authToken Authentication Token for device
+   * @param {string} authToken Authentication Token for device
    */
   set authentication(authToken) {
     this.device.authToken = authToken;
     this.axiosClient = DeviceManager.createAxiosClient(this.device);
-    this.dispatch(DeviceActions.updateDeviceManager({ manager: this }));
+    this.dispatch(DeviceActions.updateDeviceManager(this));
   }
 
   /**
    * Get the authentication token of the device
    *
-   * @returns {String} Device authorization token
+   * @returns {string} Device authorization token
    */
   get authentication() { return this.device.authToken; }
 
   /**
    * Get the authentication token of the device
    *
-   * @returns {String} Device type
+   * @returns {string} Device type
    */
   get type() { return this.device.type; }
 
   /**
  * Attempts to setup user with light device
  *
- * @returns {Boolean} True if successful dispatch of authentication attempt
+ * @returns {boolean} True if successful dispatch of authentication attempt
  */
   setupUser() {
     switch (this.device.type) {
