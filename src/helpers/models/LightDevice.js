@@ -1,25 +1,24 @@
 /**
- * A Object containing infomation about a Nanoleaf deice with useful functions
+ * A Object containing infomation about a light device with useful functions
  * @property {string} uuid
  * @property {URL} location
  * @property {string} deviceId
  * @property {integer} port
  * @property {string} ip
  */
-class NanoleafDevice {
+class LightDevice {
   /**
- * Creates a NanoleafDevice
- * @param {object} device - Contains infomation regarding nanoleaf device
+ * Creates a LightDevice
+ * @param {object} device - Contains infomation regarding light device
  * @param {string} device.uuid - Unique identifier of device
  * @param {string} device.location - URL of device
- * @param {string} device.deviceId - ID given by device
+ * @param {string} device.type - Type of light device
  * @param {string} [device.auth] - Authorization Token of device
  */
   constructor(device) {
-    this.type = 'NANOLEAF';
+    this.type = device.type;
     this.uuid = device.uuid;
     this.location = new URL(device.location);
-    this.deviceId = device.deviceId;
     this.authToken = device.auth ? device.auth : null;
   }
 
@@ -48,4 +47,4 @@ class NanoleafDevice {
   }
 }
 
-export default NanoleafDevice;
+export default LightDevice;

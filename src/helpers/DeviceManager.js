@@ -33,6 +33,7 @@ class DeviceManager extends LightInterface {
  */
   static createAxiosClient = (device) => {
     let axiosClient = null;
+
     switch (device.type) {
       case 'NANOLEAF':
         if (device.authToken) {

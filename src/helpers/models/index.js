@@ -1,9 +1,9 @@
-import NanoleafDevice from './NanoleafDevice';
+import LightDevice from './LightDevice';
 import HttpError from './HttpError';
 import HttpResponse from './HttpResponse';
 
 export {
-  NanoleafDevice,
+  LightDevice,
   HttpError,
   HttpResponse,
 };

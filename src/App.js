@@ -79,10 +79,10 @@ const App = () => {
   const testFunction = async () => {
     const devices = await DeviceDiscoveryManager.discoverNanoleafs(dispatch);
     console.log(devices);
-    const nanoleafDeviceManager = new DeviceManager(dispatch, devices[0]);
-    nanoleafDeviceManager.setupUser();
-
-    // dispatch(testButtonGet());
+    if (devices[0]) {
+      const nanoleafDeviceManager = new DeviceManager(dispatch, devices[0]);
+      nanoleafDeviceManager.setupUser();
+    }
   };
 
   const testAuthentication = async () => {

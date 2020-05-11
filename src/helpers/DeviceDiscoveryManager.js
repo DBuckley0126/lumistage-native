@@ -1,6 +1,6 @@
 import dgram from 'dgram';
 import { AppActions } from '../actions/indexActions';
-import { NanoleafDevice } from './models/index';
+import { LightDevice } from './models/index';
 
 const { Buffer } = require('buffer/');
 
@@ -40,7 +40,7 @@ const DeviceDiscoveryManager = {
    * Make the search to discover nanoleaf devices
    *
    * @param {Object} dispatch - Redux dispatch
-   * @returns {Promise<NanoleafDevice[]>} Array of discovered devices
+   * @returns {Promise<LightDevice[]>} Array of discovered devices
    */
   discoverNanoleafs: (dispatch) => {
     const socket = dgram.createSocket('udp4');
@@ -49,12 +49,8 @@ const DeviceDiscoveryManager = {
     // Configuration of SSDP discovery request headers
     const config = {
       TARGET: 'nanoleaf_aurora:light',
-      M_SEARCH: 'm-search',
       SSDP_DEFAULT_IP: '239.255.255.250',
-      ANY_IP: '0.0.0.0',
       SSDP_DEFAULT_PORT: 1900,
-      SSDP_SOURCE_PORT: 1901,
-      PORT: 16021,
     };
 
     // Updates SSDP search status
@@ -67,6 +63,7 @@ const DeviceDiscoveryManager = {
 
     // On socket receive message push nanoleaf devices found into devices array
     socket.on('message', (chunk, info) => { // eslint-disable-line no-unused-vars
+      const result = { uuid: null, location: null, type: 'NANOLEAF' };
       const buffer = Buffer.from(chunk);
 
       const response = buffer
@@ -74,28 +71,42 @@ const DeviceDiscoveryManager = {
         .trim()
         .split('\r\n');
 
-      const result = { uuid: null, location: null, deviceId: null };
-
-      // For each header of device response, extract useful infomation into NanoleafDevice
-      response.forEach((item) => {
+      // Checks if type of Nanoleaf device
+      const deviceCheck = response.find((item) => {
         const splitter = item.indexOf(':');
-
         if (splitter > -1) {
           const key = item.slice(0, splitter);
-          const value = item.slice(splitter, item.length);
+          
+          if (key === 'ST') {
+            const value = item.slice(splitter + 2, item.length);
 
-          if (key === 'S') {
-            result.uuid = value.slice(7);
-          } else if (key === 'Location') {
-            result.location = value.slice(2);
-          } else if (key === 'nl-deviceid') {
-            result.deviceId = value.slice(2);
+            if (value === 'nanoleaf_aurora:light' || value === 'nanoleaf:nl29') {
+              return true;
+            }
           }
         }
+        return false;
       });
 
-      if (result.uuid && result.location && result.deviceId) {
-        devices.push(new NanoleafDevice(result));
+      if (deviceCheck) {
+        // For each header of device response, extract useful infomation into LightDevice
+        response.forEach((item) => {
+          const splitter = item.indexOf(':');
+
+          if (splitter > -1) {
+            const key = item.slice(0, splitter);
+            const value = item.slice(splitter, item.length);
+
+            if (key === 'S') {
+              result.uuid = value.slice(7);
+            } else if (key === 'Location') {
+              result.location = value.slice(2);
+            }
+          }
+        });
+        if (result.uuid && result.location) {
+          devices.push(new LightDevice(result));
+        }
       }
     });
 
