@@ -107,6 +107,12 @@ const App = () => {
     manager.lightInterface.turnOff();
   };
 
+  const streamControl = async () => {
+    const manager = managers[Object.keys(managers)[0]];
+    const response = await manager.activateStreamControl();
+    console.log(response);
+  };
+
   return (
     <>
       <StatusBar barStyle="dark-content" />
@@ -139,6 +145,12 @@ const App = () => {
                 turnOff();
               }}
               title="Turn Off"
+            />
+             <Button
+              onPress={() => {
+                streamControl();
+              }}
+              title="Activate stream control"
             />
             { authenticating ? (
               <Text>Authenticating</Text>

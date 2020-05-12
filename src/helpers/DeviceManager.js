@@ -2,6 +2,8 @@ import axios from 'axios';
 import { AuthenticationActions, DeviceActions } from '../actions/indexActions';
 import ErrorManager from './ErrorManager';
 import LightInterface from './LightInterface';
+// eslint-disable-next-line no-unused-vars
+import { HttpResponse, HttpError } from './models/index';
 
 /**
  * Manages API for light device.
@@ -21,6 +23,7 @@ class DeviceManager {
     this.axiosClient = DeviceManager.createAxiosClient(device);
     this.lightInterface = new LightInterface(this);
     this.dispatch(DeviceActions.addDeviceManager(this));
+    this.steamControl = null;
   }
 
   /**
@@ -95,7 +98,7 @@ class DeviceManager {
   /**
  * Attempts to setup user with light device
  *
- * @returns {boolean} True if successful dispatch of authentication attempt
+ * @returns {true|null} True if successful dispatch of authentication attempt
  */
   setupUser() {
     switch (this.device.type) {
@@ -103,12 +106,41 @@ class DeviceManager {
         this.dispatch(AuthenticationActions.attemptNanoleafAuthentication(this));
         return true;
       case 'HUE':
-        return true;
+        return null;
       case 'LIFT':
-        return true;
+        return null;
       default:
-        return false;
+        return null;
     }
+  }
+
+  /**
+ * Activates external control stream on device
+ *
+ * @returns {Promise<HttpResponse>|Promise<HttpError>|void} Returns undefined if device not
+ * authenticated or error
+ */
+  activateStreamControl() {
+    let response;
+    if (!this.authenticated) {
+      return response;
+    }
+
+    const body = { write: { command: 'display', animType: 'extControl' } };
+    const stringy = JSON.stringify(body);
+
+    switch (this.device.type) {
+      case 'NANOLEAF':
+        response = this.axiosClient.put('effects', { write: { command: 'display', animType: 'extControl' } }).then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully activated effect stream', httpResponse.data)).catch((err) => err);
+        break;
+      case 'HUE':
+        break;
+      case 'LIFT':
+        break;
+      default:
+        break;
+    }
+    return response;
   }
 }
 
