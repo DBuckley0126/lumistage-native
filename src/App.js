@@ -94,8 +94,17 @@ const App = () => {
     console.log(infomationResponse);
     const powerStatusResponse = await manager.lightInterface.powerStatus;
     console.log(powerStatusResponse);
-    const turnOnResponse = await manager.lightInterface.turnOn;
-    console.log(turnOnResponse);
+
+  };
+
+  const turnOn = () => {
+    const manager = managers[Object.keys(managers)[0]];
+    manager.lightInterface.turnOn();
+  };
+
+  const turnOff = () => {
+    const manager = managers[Object.keys(managers)[0]];
+    manager.lightInterface.turnOff();
   };
 
   return (
@@ -118,6 +127,18 @@ const App = () => {
                 testAuthentication();
               }}
               title="Test Authentication"
+            />
+            <Button
+              onPress={() => {
+                turnOn();
+              }}
+              title="Turn on"
+            />
+            <Button
+              onPress={() => {
+                turnOff();
+              }}
+              title="Turn Off"
             />
             { authenticating ? (
               <Text>Authenticating</Text>

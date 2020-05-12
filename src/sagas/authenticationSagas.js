@@ -3,7 +3,9 @@ import {
   put, call, takeEvery, takeLatest, delay,
 } from 'redux-saga/effects';
 
+import { BYPASS_NANOLEAF_AUTH } from 'react-native-dotenv';
 import { AppActions } from '../actions/indexActions';
+
 
 export default function* authenticationSagas() {
   yield takeEvery('ATTEMPT_NANOLEAF_AUTHENTICATION', attemptNanoleafAuthentication);
@@ -39,8 +41,11 @@ function* attemptNanoleafAuthentication(action) {
   while (attempts < 10) {
     try {
     // eslint-disable-next-line no-await-in-loop
-      response = yield attemptAuthenticationRequest(manager.axiosClient);
-      // response = { success: true, data: { auth_token: 'vGWHW3sgCXM9BcR3KLN5NVFNtU3XlvRF' } };
+      if (BYPASS_NANOLEAF_AUTH) {
+        response = { success: true, data: { auth_token: BYPASS_NANOLEAF_AUTH } };
+      } else {
+        response = yield attemptAuthenticationRequest(manager.axiosClient);
+      }
 
       // Sets authentication of deivce
       manager.authentication = response.data.auth_token;

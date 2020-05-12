@@ -66,14 +66,36 @@ class LightInterface {
  *
  * @returns {Promise<HttpResponse>|Promise<HttpError>|false} Returns false if device not authenticated
  */
-  get turnOn() {
+  turnOn() {
     if (!this.deviceManager.authenticated) {
       return false;
     }
 
     switch (this.deviceManager.type) {
       case 'NANOLEAF':
-        return this.deviceManager.axiosClient.get('state', { on: { value: true } }).then((response) => new HttpResponse(response.status, 'successfully turned on device', response.data)).catch((err) => err);
+        return this.deviceManager.axiosClient.put('state', { on: { value: true } }).then((response) => new HttpResponse(response.status, 'successfully turned on device', response.data)).catch((err) => err);
+      case 'HUE':
+        return {};
+      case 'LIFT':
+        return {};
+      default:
+        return false;
+    }
+  }
+
+  /**
+ * Turns the device off
+ *
+ * @returns {Promise<HttpResponse>|Promise<HttpError>|false} Returns false if device not authenticated
+ */
+  turnOff() {
+    if (!this.deviceManager.authenticated) {
+      return false;
+    }
+
+    switch (this.deviceManager.type) {
+      case 'NANOLEAF':
+        return this.deviceManager.axiosClient.put('state', { on: { value: false } }).then((response) => new HttpResponse(response.status, 'successfully turned on device', response.data)).catch((err) => err);
       case 'HUE':
         return {};
       case 'LIFT':
