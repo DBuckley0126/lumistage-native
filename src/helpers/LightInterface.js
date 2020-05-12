@@ -3,12 +3,12 @@ import { HttpResponse } from './models/index';
 import { HttpError } from './models/index';
 
 /**
- * Provide functions for light API commands
+ * Provide functions for light API requests
  *
  */
 class LightInterface {
   /**
- * Create a device manager
+ * Create a light interface for a device
  *
  * @param {import('./DeviceManager').default} deviceManager - Device Manager
  */

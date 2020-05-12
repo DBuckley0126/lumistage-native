@@ -7,7 +7,7 @@
  * @flow strict-local
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -68,10 +68,11 @@ const App = () => {
   const dispatch = useDispatch();
   const managers = useSelector((state) => state.deviceManagers.NANOLEAF);
 
-  if (ENVIRONMENT === 'development') {
+  // Only run on App startup
+  useEffect(() => {
     console.log('Environment: Development');
     console.log(global.HermesInternal == null ? 'Engine: Default' : 'Engine: Hermes');
-  }
+  }, []);
 
   const authenticating = useSelector((state) => state.app.authenticating);
   const ssdpSearching = useSelector((state) => state.app.ssdpSearching);
