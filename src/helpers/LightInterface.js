@@ -86,6 +86,8 @@ class LightInterface {
         return undefined;
     }
   }
+
+  
 }
 
 export default LightInterface;
