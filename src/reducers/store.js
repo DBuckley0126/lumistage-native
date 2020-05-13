@@ -1,8 +1,9 @@
+// @ts-nocheck
 import { createStore, applyMiddleware, compose } from 'redux';
 import { persistReducer, persistStore } from 'redux-persist';
 import AsyncStorage from '@react-native-community/async-storage';
 import createSagaMiddleware from 'redux-saga';
-import { authenticationSagas, appSagas } from '../sagas/index';
+import { authenticationSagas, appSagas, deviceSagas } from '../sagas/index';
 import RootReducer from './RootReducer';
 
 function configureStore(initialState) {
@@ -37,6 +38,7 @@ function configureStore(initialState) {
   // Attach sagas to Saga middleware
   sagaMiddleware.run(appSagas);
   sagaMiddleware.run(authenticationSagas);
+  sagaMiddleware.run(deviceSagas);
 
   return store;
 }

@@ -77,7 +77,7 @@ const App = () => {
   const authenticating = useSelector((state) => state.app.authenticating);
   const ssdpSearching = useSelector((state) => state.app.ssdpSearching);
 
-  const testFunction = async () => {
+  const findDevices = async () => {
     const devices = await DeviceDiscoveryManager.discoverNanoleafs(dispatch);
     console.log(devices);
     if (devices[0]) {
@@ -90,11 +90,10 @@ const App = () => {
     const manager = managers[Object.keys(managers)[0]];
 
     console.log(manager.authenticated);
-    const infomationResponse = await manager.lightInterface.lightInfomation;
+    const infomationResponse = await manager.lightInterface.infomation;
     console.log(infomationResponse);
     const powerStatusResponse = await manager.lightInterface.powerStatus;
     console.log(powerStatusResponse);
-
   };
 
   const turnOn = () => {
@@ -107,10 +106,19 @@ const App = () => {
     manager.lightInterface.turnOff();
   };
 
-  const streamControl = async () => {
+  const streamControl = () => {
     const manager = managers[Object.keys(managers)[0]];
-    const response = await manager.activateStreamControl();
-    console.log(response);
+    manager.activateStreamControl();
+  };
+
+  const streamChange = () => {
+    const manager = managers[Object.keys(managers)[0]];
+    manager.socketController.send([1, 6, 1, 255, 0, 255, 0, 1]);
+  };
+
+  const testStreamControl = () => {
+    const manager = managers[Object.keys(managers)[0]];
+    console.log(manager.extStreamControlActive);
   };
 
   return (
@@ -124,9 +132,9 @@ const App = () => {
           <View style={styles.body}>
             <Button
               onPress={() => {
-                testFunction();
+                findDevices();
               }}
-              title="Press me"
+              title="Find devices"
             />
             <Button
               onPress={() => {
@@ -146,11 +154,23 @@ const App = () => {
               }}
               title="Turn Off"
             />
-             <Button
+            <Button
               onPress={() => {
                 streamControl();
               }}
               title="Activate stream control"
+            />
+            <Button
+              onPress={() => {
+                streamChange();
+              }}
+              title="Change stream"
+            />
+            <Button
+              onPress={() => {
+                testStreamControl();
+              }}
+              title="Test stream control"
             />
             { authenticating ? (
               <Text>Authenticating</Text>

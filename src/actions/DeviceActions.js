@@ -18,3 +18,14 @@ export const updateDeviceManager = (payload) => ({
   type: 'UPDATE_DEVICE',
   payload,
 });
+
+/**
+ * Redux Saga action to active device stream control validation
+ *
+ * @param {import('../helpers/DeviceManager').default} payload - Nanoleaf DeviceManager
+ * @returns {Object} Redux action
+ */
+export const activateStreamControlValidation = (payload) => ({
+  type: 'ACTIVATE_STREAM_CONTROL_VALIDATION',
+  payload,
+});

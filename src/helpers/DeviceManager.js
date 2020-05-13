@@ -3,7 +3,7 @@ import { AuthenticationActions, DeviceActions } from '../actions/indexActions';
 import ErrorManager from './ErrorManager';
 import LightInterface from './LightInterface';
 // eslint-disable-next-line no-unused-vars
-import { HttpResponse, HttpError } from './models/index';
+import { HttpResponse, HttpError, DeviceSocketController } from './models/index';
 
 /**
  * Manages API for light device.
@@ -11,6 +11,10 @@ import { HttpResponse, HttpError } from './models/index';
  *
  */
 class DeviceManager {
+  #dispatch
+
+  #extStreamControlActive
+
   /**
  * Create a device manager.
  *
@@ -18,12 +22,13 @@ class DeviceManager {
  * @param {Object} device - A light device
  */
   constructor(dispatch, device) {
-    this.dispatch = dispatch;
+    this.#dispatch = dispatch;
     this.device = device;
-    this.axiosClient = DeviceManager.createAxiosClient(device);
+    this.axiosClient = this.#createAxiosClient(device);
     this.lightInterface = new LightInterface(this);
-    this.dispatch(DeviceActions.addDeviceManager(this));
-    this.steamControl = null;
+    this.#dispatch(DeviceActions.addDeviceManager(this));
+    this.socketController = null;
+    this.#extStreamControlActive = false;
   }
 
   /**
@@ -33,7 +38,7 @@ class DeviceManager {
  * @param {Object} device - A light device
  * @returns {Object} Axios instance with custom config
  */
-  static createAxiosClient = (device) => {
+  #createAxiosClient = (device) => {
     let axiosClient = null;
 
     switch (device.type) {
@@ -77,8 +82,8 @@ class DeviceManager {
    */
   set authentication(authToken) {
     this.device.authToken = authToken;
-    this.axiosClient = DeviceManager.createAxiosClient(this.device);
-    this.dispatch(DeviceActions.updateDeviceManager(this));
+    this.axiosClient = this.#createAxiosClient(this.device);
+    this.save();
   }
 
   /**
@@ -103,7 +108,7 @@ class DeviceManager {
   setupUser() {
     switch (this.device.type) {
       case 'NANOLEAF':
-        this.dispatch(AuthenticationActions.attemptNanoleafAuthentication(this));
+        this.#dispatch(AuthenticationActions.attemptNanoleafAuthentication(this));
         return true;
       case 'HUE':
         return null;
@@ -115,32 +120,79 @@ class DeviceManager {
   }
 
   /**
+ * Saves current state of Device Manager in redux state
+ *
+ */
+  save() {
+    this.#dispatch(DeviceActions.updateDeviceManager(this));
+  }
+
+  /**
+ * Sets extStreamControlActive and Device Manager in redux state if change.
+ * If extStreamControlActive is being set from false to true,
+ * automatically activates validation process
+ *
+ * @param {boolean} currentlyActive Device is currently
+ * allowing external stream control over socket connection
+ */
+  set extStreamControlActive(currentlyActive) {
+    if (currentlyActive !== this.#extStreamControlActive) {
+      if (this.#extStreamControlActive === false && currentlyActive) {
+        this.#extStreamControlActive = currentlyActive;
+        this.#dispatch(DeviceActions.activateStreamControlValidation(this));
+        this.save();
+      } else {
+        this.#extStreamControlActive = currentlyActive;
+        this.save();
+      }
+    }
+  }
+
+  /**
+ * Gets extStreamControlActive
+ *
+ */
+  get extStreamControlActive() {
+    return this.#extStreamControlActive;
+  }
+
+
+  /**
  * Activates external control stream on device
  *
- * @returns {Promise<HttpResponse>|Promise<HttpError>|void} Returns undefined if device not
- * authenticated or error
+ * @returns {Promise} Return Promise<HttpError> if device not authenticated
  */
-  activateStreamControl() {
+  async activateStreamControl() {
     let response;
-    if (!this.authenticated) {
-      return response;
+
+    try {
+      switch (this.device.type) {
+        case 'NANOLEAF':
+          response = await this.axiosClient.put('effects', { write: { command: 'display', animType: 'extControl' } }).then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully activated effect stream', httpResponse.data)).catch((err) => err);
+          this.socketController = new DeviceSocketController(
+            response.data.streamControlIpAddr,
+            response.data.streamControlPort,
+            response.data.streamControlProtocol,
+          );
+          this.extStreamControlActive = true;
+          break;
+        case 'HUE':
+          break;
+        case 'LIFT':
+          break;
+        default:
+          break;
+      }
+      this.save();
+    } catch (err) {
+      return err;
     }
 
-    const body = { write: { command: 'display', animType: 'extControl' } };
-    const stringy = JSON.stringify(body);
-
-    switch (this.device.type) {
-      case 'NANOLEAF':
-        response = this.axiosClient.put('effects', { write: { command: 'display', animType: 'extControl' } }).then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully activated effect stream', httpResponse.data)).catch((err) => err);
-        break;
-      case 'HUE':
-        break;
-      case 'LIFT':
-        break;
-      default:
-        break;
-    }
     return response;
+  }
+
+  activateStreamControlValidation() {
+    this.#dispatch(DeviceActions.activateStreamControlValidation(this));
   }
 }
 

@@ -18,14 +18,9 @@ class LightInterface {
   /**
  * Retrieves infomation from device
  *
- * @returns {Promise<HttpResponse>|Promise<HttpError>|void} Returns undefined if device not
- * authenticated or error
+ * @returns {Promise<HttpResponse>|Promise<HttpError>} Return error if device not authenticated
  */
-  get lightInfomation() {
-    if (!this.deviceManager.authenticated) {
-      return undefined;
-    }
-
+  get infomation() {
     switch (this.deviceManager.type) {
       case 'NANOLEAF':
         return this.deviceManager.axiosClient.get('').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully got device infomation', httpResponse.data)).catch((err) => err);
@@ -41,14 +36,9 @@ class LightInterface {
   /**
  * Checks if device is powered on
  *
- * @returns {Promise<HttpResponse>|Promise<HttpError>|void} Returns undefined if device not
- * authenticated or error
+ * @returns {Promise<HttpResponse>|Promise<HttpError>} Returns error if device not authenticated
  */
   get powerStatus() {
-    if (!this.deviceManager.authenticated) {
-      return undefined;
-    }
-
     switch (this.deviceManager.type) {
       case 'NANOLEAF':
         return this.deviceManager.axiosClient.get('state/on').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully got device power status', httpResponse.data.value)).catch((err) => err);
@@ -64,14 +54,9 @@ class LightInterface {
   /**
  * Turns the device on
  *
- * @returns {Promise<HttpResponse>|Promise<HttpError>|void} Returns undefined if device not
- * authenticated or error
+ * @returns {Promise<HttpResponse>|Promise<HttpError>} Returns error if device not authenticated
  */
   turnOn() {
-    if (!this.deviceManager.authenticated) {
-      return undefined;
-    }
-
     switch (this.deviceManager.type) {
       case 'NANOLEAF':
         return this.deviceManager.axiosClient.put('state', { on: { value: true } }).then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully turned on device', httpResponse.data)).catch((err) => err);
@@ -87,14 +72,9 @@ class LightInterface {
   /**
  * Turns the device off
  *
- * @returns {Promise<HttpResponse>|Promise<HttpError>|void}Returns undefined if device not
- * authenticated or error
+ * @returns {Promise<HttpResponse>|Promise<HttpError>} Return error if device not authenticated
  */
   turnOff() {
-    if (!this.deviceManager.authenticated) {
-      return undefined;
-    }
-
     switch (this.deviceManager.type) {
       case 'NANOLEAF':
         return this.deviceManager.axiosClient.put('state', { on: { value: false } }).then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully turned off device', httpResponse.data)).catch((err) => err);

@@ -3,6 +3,7 @@ import {
   put, call, takeEvery, takeLatest, delay,
 } from 'redux-saga/effects';
 
+// @ts-ignore
 import { BYPASS_NANOLEAF_AUTH } from 'react-native-dotenv';
 import { AppActions } from '../actions/indexActions';
 
@@ -10,20 +11,6 @@ import { AppActions } from '../actions/indexActions';
 export default function* authenticationSagas() {
   yield takeEvery('ATTEMPT_NANOLEAF_AUTHENTICATION', attemptNanoleafAuthentication);
 }
-
-/**
- * Attempt an authorization request with Nanoleaf device
- *
- * @returns {Promise} Axios response promise
- */
-const attemptAuthenticationRequest = async (axiosClient) => {
-  try {
-    const response = axiosClient.post('new');
-    return response;
-  } catch (err) {
-    return err;
-  }
-};
 
 /**
  * Attempt an authorization request cycle with Nanoleaf device
@@ -42,9 +29,10 @@ function* attemptNanoleafAuthentication(action) {
     try {
     // eslint-disable-next-line no-await-in-loop
       if (BYPASS_NANOLEAF_AUTH) {
+        console.warn(`Authenication process bypassed with key ${BYPASS_NANOLEAF_AUTH}`);
         response = { success: true, data: { auth_token: BYPASS_NANOLEAF_AUTH } };
       } else {
-        response = yield attemptAuthenticationRequest(manager.axiosClient);
+        response = yield manager.axiosClient.post('new');
       }
 
       // Sets authentication of deivce

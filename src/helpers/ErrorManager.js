@@ -9,7 +9,7 @@ const ErrorManager = {
  * Handles all error processing
  *
  * @param {Object} error Axios error
- * @returns {Promise} Rejected promise containing HttpError object
+ * @returns {Promise<HttpError>} Rejected promise containing HttpError object
  */
   axiosErrorHandler: (error) => {
     const { response } = error;

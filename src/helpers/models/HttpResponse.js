@@ -16,6 +16,13 @@ class HttpResponse {
     this.message = message;
     this.data = data;
   }
+
+  /**
+ * Describes this object as a type of error
+ * @returns {boolean} Returns false as this objects is not a type of error
+ */
+  // eslint-disable-next-line class-methods-use-this
+  get typeOfError() { return false; }
 }
 
 export default HttpResponse;
