@@ -22,8 +22,10 @@ function* streamControlValidation(action) {
   try {
     switch (deviceManager.type) {
       case 'NANOLEAF':
+        console.log(`Beginning validation process`);
         while (deviceManager.extStreamControlActive) {
           const response = yield deviceManager.lightInterface.infomation;
+          console.log(response);
           if (response.data.effects.select === '*Dynamic*') {
             deviceManager.extStreamControlActive = true;
             yield delay(3000);

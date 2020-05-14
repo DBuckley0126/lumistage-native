@@ -1,9 +1,9 @@
 import dgram from 'dgram';
+import Env from '../../Env';
 import { AppActions } from '../actions/indexActions';
 import { LightDevice } from './models/index';
 
 const { Buffer } = require('buffer/');
-
 
 /**
  * Send ssdp message via socket
@@ -84,6 +84,16 @@ const DeviceDiscoveryManager = {
       return response || false;
     };
 
+    if (Env.BYPASS_NANOLEAF_DISCOVERY) {
+      console.warn(`Nanoleaf device discovery process bypassed with device UUID ${Env.BYPASS_NANOLEAF_DISCOVERY.UUID}`);
+      const result = {
+        uuid: Env.BYPASS_NANOLEAF_DISCOVERY.UUID,
+        location: Env.BYPASS_NANOLEAF_DISCOVERY.LOCATION,
+        auth: Env.BYPASS_NANOLEAF_DISCOVERY.AUTH,
+        type: 'NANOLEAF',
+      };
+      return Promise.resolve([new LightDevice(result)]);
+    }
     return DeviceDiscoveryManager.discoverDevices(
       dispatch,
       config.target,

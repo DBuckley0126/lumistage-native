@@ -156,6 +156,17 @@ class DeviceManager {
     return this.#extStreamControlActive;
   }
 
+  /**
+ * Gets steam control version for panel type
+ *
+ */
+  get streamControl() {
+    if (this.type === 'CANVAS') {
+      return 'v2';
+    }
+    return 'v1';
+  }
+
 
   /**
  * Activates external control stream on device

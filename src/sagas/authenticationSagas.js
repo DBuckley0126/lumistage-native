@@ -3,8 +3,7 @@ import {
   put, call, takeEvery, takeLatest, delay,
 } from 'redux-saga/effects';
 
-// @ts-ignore
-import { BYPASS_NANOLEAF_AUTH } from 'react-native-dotenv';
+import Env from '../../Env';
 import { AppActions } from '../actions/indexActions';
 
 
@@ -28,9 +27,9 @@ function* attemptNanoleafAuthentication(action) {
   while (attempts < 10) {
     try {
     // eslint-disable-next-line no-await-in-loop
-      if (BYPASS_NANOLEAF_AUTH) {
-        console.warn(`Authenication process bypassed with key ${BYPASS_NANOLEAF_AUTH}`);
-        response = { success: true, data: { auth_token: BYPASS_NANOLEAF_AUTH } };
+      if (Env.BYPASS_NANOLEAF_AUTH) {
+        console.warn(`Authenication process bypassed with key ${Env.BYPASS_NANOLEAF_AUTH}`);
+        response = { success: true, data: { auth_token: Env.BYPASS_NANOLEAF_AUTH } };
       } else {
         response = yield manager.axiosClient.post('new');
       }

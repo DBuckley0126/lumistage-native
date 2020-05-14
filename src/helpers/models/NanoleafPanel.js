@@ -7,7 +7,7 @@
  * @property {number} blue - RGB blue color value [0 - 255]
  * @property {number} [white = 0] - RGB white color value, leave at 0
  * @property {Object} [config = { transition: 0 }] - Nanoleaf panel configuration object
- * @property {number} [config.transition = 0] - Transition time*100ms (1T = 100ms)
+ * @property {number} [config.transition = 1] - Transition time*100ms (1T = 100ms)
  */
 class NanoleafPanel {
   /**
@@ -19,9 +19,9 @@ class NanoleafPanel {
  * @param {number} blue - RGB blue color value [0 - 255]
  * @param {number} [white = 0] - RGB white color value, leave at 0
  * @param {Object} [config = { transition: 0 }] - Nanoleaf panel configuration object
- * @param {number} [config.transition = 0] - Transition time*100ms (1T = 100ms)
+ * @param {number} [config.transition = 1] - Transition time*100ms (1T = 100ms)
  */
-  constructor(type, id, red, green, blue, white = 0, config = { transition: 0 }) {
+  constructor(type, id, red, green, blue, white = 0, config = { transition: 1 }) {
     this.type = type;
     this.id = id;
     this.red = red;
@@ -29,6 +29,17 @@ class NanoleafPanel {
     this.blue = blue;
     this.white = white;
     this.config = config;
+  }
+
+  /**
+ * Gets steam control version for panel type
+ *
+ */
+  get streamControl() {
+    if (this.type === 'CANVAS') {
+      return 'v2';
+    }
+    return 'v1';
   }
 }
 

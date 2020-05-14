@@ -1,7 +1,6 @@
 import {put, call, takeEvery, takeLatest, delay} from 'redux-saga/effects';
 import axios from 'axios';
 
-import { ENVIRONMENT } from 'react-native-dotenv'
 import * as actions from '../actions/SagaActions';
 
 export default function* appSagas() {
@@ -17,7 +16,7 @@ function* testButtonGet(action) {
   let response = false;
 
   try {
-    if (ENVIRONMENT === "development") {
+    if ("development" === "development") {
       response = yield axios(requestOptions);
     } else {
       response = yield fetch(

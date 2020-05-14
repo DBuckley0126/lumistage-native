@@ -19,11 +19,11 @@ import {
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { ENVIRONMENT } from 'react-native-dotenv';
-import { testButtonGet } from './actions/AppActions';
+import Env from '../Env';
 import DeviceManager from './helpers/DeviceManager';
 import DeviceDiscoveryManager from './helpers/DeviceDiscoveryManager';
 import Colours from './helpers/Colours';
+import { NanoleafPanel } from './helpers/models/index';
 
 const styles = StyleSheet.create({
   scrollView: {
@@ -70,7 +70,8 @@ const App = () => {
 
   // Only run on App startup
   useEffect(() => {
-    console.log('Environment: Development');
+    console.log(`Environment: ${Env.ENVIRONMENT}`);
+    // @ts-ignore
     console.log(global.HermesInternal == null ? 'Engine: Default' : 'Engine: Hermes');
   }, []);
 
@@ -82,7 +83,9 @@ const App = () => {
     console.log(devices);
     if (devices[0]) {
       const nanoleafDeviceManager = new DeviceManager(dispatch, devices[0]);
-      nanoleafDeviceManager.setupUser();
+      if (!nanoleafDeviceManager.authenticated) {
+        nanoleafDeviceManager.setupUser();
+      }
     }
   };
 
@@ -113,7 +116,10 @@ const App = () => {
 
   const streamChange = () => {
     const manager = managers[Object.keys(managers)[0]];
-    manager.socketController.send([1, 6, 1, 255, 0, 255, 0, 1]);
+    const panel1 = new NanoleafPanel('PANEL', 6, 255, 0, 255, 0, { transition: 1 });
+    // const panel2 = new NanoleafPanel('PANEL', 175, 255, 255, 0, 0, { transition: 1 });
+    // const panel3 = new NanoleafPanel('PANEL', 165, 0, 255, 255, 0, { transition: 1 });
+    manager.lightInterface.updateThroughStreamControl([panel1]);
   };
 
   const testStreamControl = () => {

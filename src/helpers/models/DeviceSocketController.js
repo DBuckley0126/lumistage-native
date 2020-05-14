@@ -27,11 +27,10 @@ class DeviceSocketController {
 
   /**
  * Creates a socket
- * @param {string} ip - IP Address of socket connection
- * @param {number} port - Port of socket connection
- * @returns {dgram.Socket} Returns connected socket with IP and Port
+ *
+ * @returns {dgram.Socket} Returns binded socket
  */
-  static createSocket(ip, port) {
+  static createSocket() {
     const socket = dgram.createSocket('udp4');
 
     socket.on('error', (err) => {
@@ -45,9 +44,7 @@ class DeviceSocketController {
       // @ts-ignore
       console.log(`Device stream socket listening`);
     });
-    // debugger
-    socket.bind(port);
-    // socket.connect(port, ip);
+
     return socket;
   }
 
@@ -56,6 +53,7 @@ class DeviceSocketController {
  * @param {any} message - What is sent through socket connection
  */
   send(message) {
+    message = [1, 6, 1, 255, 0, 255, 0, 1];
     const buffer = Buffer.from(message);
 
     this.socket.send(
