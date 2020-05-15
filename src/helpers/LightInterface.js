@@ -145,7 +145,7 @@ class LightInterface {
   get brightness() {
     switch (this.deviceManager.type) {
       case 'NANOLEAF':
-        return this.deviceManager.axiosClient.put('state/brightness/value').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully received brightness of device', httpResponse.data)).catch((err) => err);
+        return this.deviceManager.axiosClient.get('state/brightness/value').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully received brightness of device', httpResponse.data)).catch((err) => err);
       case 'HUE':
         return undefined;
       case 'LIFT':
@@ -189,7 +189,7 @@ class LightInterface {
   get globalOrientation() {
     switch (this.deviceManager.type) {
       case 'NANOLEAF':
-        return this.deviceManager.axiosClient.put('panelLayout/globalOrientation').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully received global orientation of position', httpResponse.data)).catch((err) => err);
+        return this.deviceManager.axiosClient.get('panelLayout/globalOrientation').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully received global orientation of position', httpResponse.data)).catch((err) => err);
       case 'HUE':
         return undefined;
       case 'LIFT':
@@ -232,7 +232,7 @@ class LightInterface {
   get layout() {
     switch (this.deviceManager.type) {
       case 'NANOLEAF':
-        return this.deviceManager.axiosClient.put('panelLayout/layout').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully received layout of device', httpResponse.data)).catch((err) => err);
+        return this.deviceManager.axiosClient.get('panelLayout/layout').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully received layout of device', httpResponse.data)).catch((err) => err);
       case 'HUE':
         return undefined;
       case 'LIFT':
@@ -255,7 +255,7 @@ class LightInterface {
   get rhythmConnected() {
     switch (this.deviceManager.type) {
       case 'NANOLEAF':
-        return this.deviceManager.axiosClient.put('rhythm/rhythmConnected').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully received connected status of rhythm module', httpResponse.data)).catch((err) => err);
+        return this.deviceManager.axiosClient.get('rhythm/rhythmConnected').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully received connected status of rhythm module', httpResponse.data)).catch((err) => err);
       case 'HUE':
         return undefined;
       case 'LIFT':
@@ -274,7 +274,7 @@ class LightInterface {
   get rhythmId() {
     switch (this.deviceManager.type) {
       case 'NANOLEAF':
-        return this.deviceManager.axiosClient.put('rhythm/rhythmId').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully received rhythm module ID', httpResponse.data)).catch((err) => err);
+        return this.deviceManager.axiosClient.get('rhythm/rhythmId').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully received rhythm module ID', httpResponse.data)).catch((err) => err);
       case 'HUE':
         return undefined;
       case 'LIFT':
@@ -294,7 +294,7 @@ class LightInterface {
   get rhythmPosition() {
     switch (this.deviceManager.type) {
       case 'NANOLEAF':
-        return this.deviceManager.axiosClient.put('rhythm/rhythmPos').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully received rhythm module position', httpResponse.data)).catch((err) => err);
+        return this.deviceManager.axiosClient.get('rhythm/rhythmPos').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully received rhythm module position', httpResponse.data)).catch((err) => err);
       case 'HUE':
         return undefined;
       case 'LIFT':

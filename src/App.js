@@ -122,9 +122,9 @@ const App = () => {
     manager.lightInterface.updateThroughStreamControl([panel1, panel2, panel3]);
   };
 
-  const testStreamControl = () => {
+  const updateLightSegmants = () => {
     const manager = managers[Object.keys(managers)[0]];
-    console.log(manager.extStreamControlActive);
+    console.log(manager.updateLightSegmants());
   };
 
   return (
@@ -174,9 +174,9 @@ const App = () => {
             />
             <Button
               onPress={() => {
-                testStreamControl();
+                updateLightSegmants();
               }}
-              title="Test stream control"
+              title="Update light segmants"
             />
             { authenticating ? (
               <Text>Authenticating</Text>

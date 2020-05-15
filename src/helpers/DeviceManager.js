@@ -3,7 +3,9 @@ import { AuthenticationActions, DeviceActions } from '../actions/indexActions';
 import ErrorManager from './ErrorManager';
 import LightInterface from './LightInterface';
 // eslint-disable-next-line no-unused-vars
-import { HttpResponse, HttpError, DeviceSocketController } from './models/index';
+import {
+  HttpResponse, HttpError, DeviceSocketController, NanoleafPanel,
+} from './models/index';
 
 /**
  * Manages API for light device.
@@ -31,6 +33,10 @@ class DeviceManager {
     this.#extStreamControlActive = false;
   }
 
+  //
+  // ─── PRIVATE FUNCTIONS ─────────────────────────────────────────────────────────
+  //
+
   /**
  * PRIVATE
  * Creates Axios instance with specific device config
@@ -54,11 +60,11 @@ class DeviceManager {
         }
         break;
       case 'HUE':
-        return {};
+        return undefined;
       case 'LIFT':
-        return {};
+        return undefined;
       default:
-        return false;
+        return undefined;
     }
     axiosClient.interceptors.response.use(
       (response) => response,
@@ -66,6 +72,10 @@ class DeviceManager {
     );
     return axiosClient;
   }
+
+  //
+  // ─── USER FUNCTIONS ─────────────────────────────────────────────────────────
+  //
 
   /**
  * Checks if device has been authenticated
@@ -103,7 +113,7 @@ class DeviceManager {
   /**
  * Attempts to setup user with light device
  *
- * @returns {true|null} True if successful dispatch of authentication attempt
+ * @returns {true|void} True if successful dispatch of authentication attempt
  */
   setupUser() {
     switch (this.device.type) {
@@ -111,11 +121,11 @@ class DeviceManager {
         this.#dispatch(AuthenticationActions.attemptNanoleafAuthentication(this));
         return true;
       case 'HUE':
-        return null;
+        return undefined;
       case 'LIFT':
-        return null;
+        return undefined;
       default:
-        return null;
+        return undefined;
     }
   }
 
@@ -126,6 +136,10 @@ class DeviceManager {
   save() {
     this.#dispatch(DeviceActions.updateDeviceManager(this));
   }
+
+  //
+  // ─── STREAM CONTROL FUNCTIONS ─────────────────────────────────────────────────────────
+  //
 
   /**
  * Sets extStreamControlActive and Device Manager in redux state if change.
@@ -208,6 +222,58 @@ class DeviceManager {
  */
   activateStreamControlValidation() {
     this.#dispatch(DeviceActions.activateStreamControlValidation(this));
+  }
+
+  //
+  // ─── LAYOUT FUNCTIONS ─────────────────────────────────────────────────────────
+  //
+
+  /**
+ * Updates device light segmants from infomation received from main light device
+ *
+ * @return {Object} Light segmants
+ *
+ */
+  async updateLightSegmants() {
+    try {
+      switch (this.device.type) {
+        case 'NANOLEAF': {
+          const layoutInfomation = await this.lightInterface.layout;
+          const nanoleafPanels = {};
+          // eslint-disable-next-line no-restricted-syntax
+          for (const lightSegmant of layoutInfomation.data.positionData) {
+            const nanoleafPanel = new NanoleafPanel(
+              lightSegmant.shapeType,
+              lightSegmant.panelId,
+              0,
+              0,
+              0,
+              0,
+              {
+                transition: 1,
+                orientation: lightSegmant.o,
+                xCoordinate: lightSegmant.x,
+                yCoordinate: lightSegmant.y,
+              },
+            );
+            nanoleafPanels[nanoleafPanel.id] = nanoleafPanel;
+          }
+          this.device.lightSegmants = nanoleafPanels;
+          break;
+        }
+        case 'HUE':
+          break;
+        case 'LIFT':
+          break;
+        default:
+          break;
+      }
+    } catch (err) {
+      console.warn('Failed to update light segmants');
+    }
+
+    this.save();
+    return this.device.lightSegmants;
   }
 }
 

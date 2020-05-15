@@ -1,10 +1,12 @@
 /**
- * A Object containing infomation about a light device with useful functions
- * @property {string} uuid
- * @property {URL} location
- * @property {string} deviceId
- * @property {integer} port
- * @property {string} ip
+ * A Object containing infomation about a light device
+ * @property {string} uuid - Unique identifier of device
+ * @property {URL} location - URL of device
+ * @property {integer} port - Port number of device
+ * @property {string} ip - address of device
+ * @property {string} auth - Authorization Token of device
+ * @property {Object} lightSegmants - Individial light segmants of device
+ * @property {string} type - Type of light device
  */
 class LightDevice {
   /**
@@ -13,13 +15,15 @@ class LightDevice {
  * @param {string} device.uuid - Unique identifier of device
  * @param {string} device.location - URL of device
  * @param {string} device.type - Type of light device
- * @param {string} [device.auth] - Authorization Token of device
+ * @param {string} device.auth - Authorization Token of device
+ * @param {Object} device.lightSegmants - Individial light segmants of device
  */
   constructor(device) {
     this.type = device.type;
     this.uuid = device.uuid;
     this.location = new URL(device.location);
     this.authToken = device.auth ? device.auth : null;
+    this.lightSegmants = device.lightSegmants ? device.lightSegmants : null;
   }
 
   /**
