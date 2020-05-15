@@ -23,6 +23,7 @@ class LightInterface {
  * Create a light interface for a device
  *
  * @param {import('./DeviceManager').default} deviceManager - Device Manager
+ *
  */
   constructor(deviceManager) {
     this.deviceManager = deviceManager;
@@ -36,6 +37,7 @@ class LightInterface {
  * Retrieves infomation from device
  *
  * @returns {Promise<HttpResponse>|Promise<HttpError>} Return error if device not authenticated
+ *
  */
   get infomation() {
     switch (this.deviceManager.type) {
@@ -54,6 +56,7 @@ class LightInterface {
  * Checks if device is powered on
  *
  * @returns {Promise<HttpResponse>|Promise<HttpError>} Returns error if device not authenticated
+ *
  */
   get powerStatus() {
     switch (this.deviceManager.type) {
@@ -72,6 +75,7 @@ class LightInterface {
  * Briefly flash the panels on and off
  *
  * @returns {Promise<HttpResponse>|Promise<HttpError>} Return error if device not authenticated
+ *
  */
   identify() {
     switch (this.deviceManager.type) {
@@ -94,6 +98,7 @@ class LightInterface {
  * Turns the device on
  *
  * @returns {Promise<HttpResponse>|Promise<HttpError>} Returns error if device not authenticated
+ *
  */
   turnOn() {
     switch (this.deviceManager.type) {
@@ -112,6 +117,7 @@ class LightInterface {
  * Turns the device off
  *
  * @returns {Promise<HttpResponse>|Promise<HttpError>} Return error if device not authenticated
+ *
  */
   turnOff() {
     switch (this.deviceManager.type) {
@@ -134,11 +140,12 @@ class LightInterface {
  * "Returns the brightness of the device (0-100)
  *
  * @returns {Promise<HttpResponse>|Promise<HttpError>} Return error if device not authenticated
+ *
  */
   get brightness() {
     switch (this.deviceManager.type) {
       case 'NANOLEAF':
-        return this.deviceManager.axiosClient.put('state/brightness/value').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully turned off device', httpResponse.data)).catch((err) => err);
+        return this.deviceManager.axiosClient.put('state/brightness/value').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully received brightness of device', httpResponse.data)).catch((err) => err);
       case 'HUE':
         return undefined;
       case 'LIFT':
@@ -153,11 +160,12 @@ class LightInterface {
  * @param {number} level - Brighness level [0-100]
  *
  * @returns {Promise<HttpResponse>|Promise<HttpError>} Return error if device not authenticated
+ *
  */
   setBrightness(level) {
     switch (this.deviceManager.type) {
       case 'NANOLEAF':
-        return this.deviceManager.axiosClient.put('state', { brightness: { value: level } }).then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully turned off device', httpResponse.data)).catch((err) => err);
+        return this.deviceManager.axiosClient.put('state', { brightness: { value: level } }).then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully set brightness of device', httpResponse.data)).catch((err) => err);
       case 'HUE':
         return undefined;
       case 'LIFT':
@@ -174,12 +182,14 @@ class LightInterface {
   /**
  * Returns the global orientation infomation of the device
  * @variation Nanoleaf
- * @returns {Promise<HttpResponse>|Promise<HttpError>} data: {value : 0, max : 360, min : 0}. Return error if device not authenticated.
+ * @returns {Promise<HttpResponse>|Promise<HttpError>} data: {value : 0, max : 360, min : 0}. 
+ * Return error if device not authenticated.
+ *
  */
   get globalOrientation() {
     switch (this.deviceManager.type) {
       case 'NANOLEAF':
-        return this.deviceManager.axiosClient.put('panelLayout/globalOrientation').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully turned off device', httpResponse.data)).catch((err) => err);
+        return this.deviceManager.axiosClient.put('panelLayout/globalOrientation').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully received global orientation of position', httpResponse.data)).catch((err) => err);
       case 'HUE':
         return undefined;
       case 'LIFT':
@@ -194,13 +204,14 @@ class LightInterface {
  *
  * @variation Nanoleaf
  * @param {number} value Global Orientation of device [0-360]
- * @returns {Promise<HttpResponse>|Promise<HttpError>} data: {value : 0, max : 360, min : 0}. 
+ * @returns {Promise<HttpResponse>|Promise<HttpError>} data: {value : 0, max : 360, min : 0}.
  * Return error if device not authenticated.
+ *
  */
   setGlobalOrientation(value) {
     switch (this.deviceManager.type) {
       case 'NANOLEAF':
-        return this.deviceManager.axiosClient.put('panelLayout', { globalOrientation: { value } }).then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully turned off device', httpResponse.data)).catch((err) => err);
+        return this.deviceManager.axiosClient.put('panelLayout', { globalOrientation: { value } }).then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully set global orientation of device', httpResponse.data)).catch((err) => err);
       case 'HUE':
         return undefined;
       case 'LIFT':
@@ -216,11 +227,74 @@ class LightInterface {
  * @variation Nanoleaf
  * @returns {Promise<HttpResponse>|Promise<HttpError>} data: {numPanels: <number>,sideLength:<number>, positionData:[{panelId:<number>,x:<number>,y:<number>,o:<number>}]}.
  * Return error if device not authenticated.
+ *
  */
   get layout() {
     switch (this.deviceManager.type) {
       case 'NANOLEAF':
-        return this.deviceManager.axiosClient.put('panelLayout/layout').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully turned off device', httpResponse.data)).catch((err) => err);
+        return this.deviceManager.axiosClient.put('panelLayout/layout').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully received layout of device', httpResponse.data)).catch((err) => err);
+      case 'HUE':
+        return undefined;
+      case 'LIFT':
+        return undefined;
+      default:
+        return undefined;
+    }
+  }
+
+  //
+  // ─── NANOLEAF FUNCTIONS ─────────────────────────────────────────────────────────
+  //
+
+  /**
+ * NANOLEAF ONLY: Returns boolean if nanoleaf rhythm module is connected or not
+ *
+ * @returns {Promise<HttpResponse>|Promise<HttpError>} Return error if device not authenticated.
+ *
+ */
+  get rhythmConnected() {
+    switch (this.deviceManager.type) {
+      case 'NANOLEAF':
+        return this.deviceManager.axiosClient.put('rhythm/rhythmConnected').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully received connected status of rhythm module', httpResponse.data)).catch((err) => err);
+      case 'HUE':
+        return undefined;
+      case 'LIFT':
+        return undefined;
+      default:
+        return undefined;
+    }
+  }
+
+  /**
+ * NANOLEAF ONLY: Returns rhythm module Id in panel system
+ *
+ * @returns {Promise<HttpResponse>|Promise<HttpError>} Return error if device not authenticated.
+ *
+ */
+  get rhythmId() {
+    switch (this.deviceManager.type) {
+      case 'NANOLEAF':
+        return this.deviceManager.axiosClient.put('rhythm/rhythmId').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully received rhythm module ID', httpResponse.data)).catch((err) => err);
+      case 'HUE':
+        return undefined;
+      case 'LIFT':
+        return undefined;
+      default:
+        return undefined;
+    }
+  }
+
+  /**
+ * NANOLEAF ONLY: Returns rhythm module position in panel system
+ *
+ * @returns {Promise<HttpResponse>|Promise<HttpError>} data: { x: <number>, y: <number>, o: <number> }. 
+ * Return error if device not authenticated.
+ *
+ */
+  get rhythmPosition() {
+    switch (this.deviceManager.type) {
+      case 'NANOLEAF':
+        return this.deviceManager.axiosClient.put('rhythm/rhythmPos').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully received rhythm module position', httpResponse.data)).catch((err) => err);
       case 'HUE':
         return undefined;
       case 'LIFT':

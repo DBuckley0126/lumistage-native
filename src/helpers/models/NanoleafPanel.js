@@ -35,7 +35,7 @@ class NanoleafPanel {
  * Gets steam control version for panel type
  *
  */
-  get streamControl() {
+  get streamControlVersion() {
     if (this.type === 'CANVAS') {
       return 'v2';
     }
