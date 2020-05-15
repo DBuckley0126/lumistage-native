@@ -22,7 +22,7 @@ class DeviceSocketController {
     this.protocol = protocol;
     this.ip = ip;
     this.port = port;
-    this.socket = DeviceSocketController.createSocket(ip, port);
+    this.socket = DeviceSocketController.createSocket();
   }
 
   /**
@@ -42,7 +42,7 @@ class DeviceSocketController {
     });
     socket.on('listening', () => {
       // @ts-ignore
-      console.log(`Device stream socket listening`);
+      console.log('Device stream socket listening');
     });
 
     return socket;
@@ -53,7 +53,6 @@ class DeviceSocketController {
  * @param {any} message - What is sent through socket connection
  */
   send(message) {
-    message = [1, 6, 1, 255, 0, 255, 0, 1];
     const buffer = Buffer.from(message);
 
     this.socket.send(

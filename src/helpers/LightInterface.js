@@ -28,6 +28,10 @@ class LightInterface {
     this.deviceManager = deviceManager;
   }
 
+  //
+  // ─── GENERAL FUNCTIONALITY FUNCTIONS ─────────────────────────────────────────────────────────
+  //
+
   /**
  * Retrieves infomation from device
  *
@@ -65,6 +69,28 @@ class LightInterface {
   }
 
   /**
+ * Briefly flash the panels on and off
+ *
+ * @returns {Promise<HttpResponse>|Promise<HttpError>} Return error if device not authenticated
+ */
+  identify() {
+    switch (this.deviceManager.type) {
+      case 'NANOLEAF':
+        return this.deviceManager.axiosClient.put('identify').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully turned off device', httpResponse.data)).catch((err) => err);
+      case 'HUE':
+        return undefined;
+      case 'LIFT':
+        return undefined;
+      default:
+        return undefined;
+    }
+  }
+
+  //
+  // ─── ON / OFF FUNCTIONS ─────────────────────────────────────────────────────────
+  //
+
+  /**
  * Turns the device on
  *
  * @returns {Promise<HttpResponse>|Promise<HttpError>} Returns error if device not authenticated
@@ -100,6 +126,10 @@ class LightInterface {
     }
   }
 
+  //
+  // ─── STREAM CONTROL FUNCTIONS ─────────────────────────────────────────────────────────
+  //
+
   /**
  * Sets color of device through external stream control
  *
@@ -111,8 +141,8 @@ class LightInterface {
     if (this.deviceManager.extStreamControlActive) {
       switch (this.deviceManager.type) {
         case 'NANOLEAF': {
-          const nPanels = this.deviceManager.streamControl === 'v1' ? individialLights.length : intToBigEndian(individialLights.length);
-          let outputString = `${nPanels}`;
+          const nPanels = this.deviceManager.streamControlVersion === 'v1' ? individialLights.length : intToBigEndian(individialLights.length);
+          const outputArray = [nPanels];
 
           // eslint-disable-next-line no-restricted-syntax
           for (const light of individialLights) {
@@ -120,16 +150,32 @@ class LightInterface {
               id, red, green, blue, white,
             } = light;
             const transitionTime = light.config.transition;
-            if (this.deviceManager.streamControl === 'v1') {
+            if (this.deviceManager.streamControlVersion === 'v1') {
               // Version 1 requires the amount of frames per request message
-              outputString += ` ${id} 1 ${red} ${green} ${blue} ${white} ${transitionTime}`;
+              outputArray.push(
+                id,
+                1,
+                red,
+                green,
+                blue,
+                white,
+                transitionTime,
+              );
             } else {
               // Version 2 does not require the amount of frames per request message,
               // nPanels, PanelID and transition time must be in Big Endian format
-              outputString += ` ${intToBigEndian(id)} ${red} ${green} ${blue} ${white} ${intToBigEndian(transitionTime)}`;
+              // NEEDS TESTING ON NANOLEAF CANVAS DEVICE
+              outputArray.push(
+                intToBigEndian(id),
+                red,
+                green,
+                blue,
+                white,
+                intToBigEndian(transitionTime),
+              );
             }
           }
-          this.deviceManager.socketController.send(outputString);
+          this.deviceManager.socketController.send(outputArray);
           break;
         }
         case 'HUE': {

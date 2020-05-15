@@ -117,9 +117,9 @@ const App = () => {
   const streamChange = () => {
     const manager = managers[Object.keys(managers)[0]];
     const panel1 = new NanoleafPanel('PANEL', 6, 255, 0, 255, 0, { transition: 1 });
-    // const panel2 = new NanoleafPanel('PANEL', 175, 255, 255, 0, 0, { transition: 1 });
-    // const panel3 = new NanoleafPanel('PANEL', 165, 0, 255, 255, 0, { transition: 1 });
-    manager.lightInterface.updateThroughStreamControl([panel1]);
+    const panel2 = new NanoleafPanel('PANEL', 107, 255, 255, 0, 0, { transition: 1 });
+    const panel3 = new NanoleafPanel('PANEL', 165, 0, 255, 255, 0, { transition: 1 });
+    manager.lightInterface.updateThroughStreamControl([panel1, panel2, panel3]);
   };
 
   const testStreamControl = () => {

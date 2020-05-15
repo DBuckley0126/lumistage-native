@@ -160,7 +160,7 @@ class DeviceManager {
  * Gets steam control version for panel type
  *
  */
-  get streamControl() {
+  get streamControlVersion() {
     if (this.type === 'CANVAS') {
       return 'v2';
     }
@@ -202,6 +202,10 @@ class DeviceManager {
     return response;
   }
 
+  /**
+ * Activates external control stream validation cycle in background
+ *
+ */
   activateStreamControlValidation() {
     this.#dispatch(DeviceActions.activateStreamControlValidation(this));
   }
