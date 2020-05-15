@@ -127,6 +127,47 @@ class LightInterface {
   }
 
   //
+  // ─── BRIGHTNESS FUNCTIONS ─────────────────────────────────────────────────────────
+  //
+
+  /**
+ * "Returns the brightness of the device (0-100)
+ *
+ * @returns {Promise<HttpResponse>|Promise<HttpError>} Return error if device not authenticated
+ */
+  get brightness() {
+    switch (this.deviceManager.type) {
+      case 'NANOLEAF':
+        return this.deviceManager.axiosClient.put('state/brightness/value').then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully turned off device', httpResponse.data)).catch((err) => err);
+      case 'HUE':
+        return undefined;
+      case 'LIFT':
+        return undefined;
+      default:
+        return undefined;
+    }
+  }
+
+  /**
+ * Sets the brightness to the given level
+ * @param {number} level - Brighness level between 0-100
+ *
+ * @returns {Promise<HttpResponse>|Promise<HttpError>} Return error if device not authenticated
+ */
+  setBrightness(level) {
+    switch (this.deviceManager.type) {
+      case 'NANOLEAF':
+        return this.deviceManager.axiosClient.put('state', { brightness: { value: level } }).then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully turned off device', httpResponse.data)).catch((err) => err);
+      case 'HUE':
+        return undefined;
+      case 'LIFT':
+        return undefined;
+      default:
+        return undefined;
+    }
+  }
+
+  //
   // ─── STREAM CONTROL FUNCTIONS ─────────────────────────────────────────────────────────
   //
 
