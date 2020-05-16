@@ -12,36 +12,41 @@ const ErrorManager = {
  * @returns {Promise<HttpError>} Rejected promise containing HttpError object
  */
   axiosErrorHandler: (error) => {
-    const { response } = error;
     let httpError = null;
-
-    switch (response.status) {
+    if (error.code === 'ECONNABORTED') {
+      httpError = new HttpError('Unknown', error.message, error);
+      console.log(httpError);
+      return Promise.reject(httpError);
+    }
+    const { response } = error;
+    const status = response.status ? response.status : 'Unknown';
+    switch (status) {
       case 400:
-        httpError = new HttpError(response.status, 'Bad request', response);
+        httpError = new HttpError(status, 'Bad request', response);
         console.log(httpError);
         return Promise.reject(httpError);
       case 401:
-        httpError = new HttpError(response.status, 'Request was not authorized', response);
+        httpError = new HttpError(status, 'Request was not authorized', response);
         console.log(httpError);
         return Promise.reject(httpError);
       case 403:
-        httpError = new HttpError(response.status, 'Request is forbidden', response);
+        httpError = new HttpError(status, 'Request is forbidden', response);
         console.log(httpError);
         return Promise.reject(httpError);
       case 404:
-        httpError = new HttpError(response.status, 'Resource not found', response);
+        httpError = new HttpError(status, 'Resource not found', response);
         console.log(httpError);
         return Promise.reject(httpError);
       case 422:
-        httpError = new HttpError(response.status, 'Unprocessable entity', response);
+        httpError = new HttpError(status, 'Unprocessable entity', response);
         console.log(httpError);
         return Promise.reject(httpError);
       case 500:
-        httpError = new HttpError(response.status, 'Internal server error', response);
+        httpError = new HttpError(status, 'Internal server error', response);
         console.log(httpError);
         return Promise.reject(httpError);
       default:
-        httpError = new HttpError(response.status, 'Unknown Error', response);
+        httpError = new HttpError(status, 'Unknown Error', response);
         console.log(httpError);
         return Promise.reject(httpError);
     }

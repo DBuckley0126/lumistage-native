@@ -17,6 +17,8 @@ class DeviceManager {
 
   #extStreamControlActive
 
+  #streamDeviceState
+
   /**
  * Create a device manager.
  *
@@ -26,11 +28,12 @@ class DeviceManager {
   constructor(dispatch, device) {
     this.#dispatch = dispatch;
     this.device = device;
-    this.axiosClient = this.#createAxiosClient(device);
+    this.axiosClient = DeviceManager.createAxiosClient(device);
     this.lightInterface = new LightInterface(this);
-    this.#dispatch(DeviceActions.addDeviceManager(this));
     this.socketController = null;
     this.#extStreamControlActive = false;
+    this.#streamDeviceState = false;
+    this.#dispatch(DeviceActions.addDeviceManager(this));
   }
 
   //
@@ -44,7 +47,7 @@ class DeviceManager {
  * @param {Object} device - A light device
  * @returns {Object} Axios instance with custom config
  */
-  #createAxiosClient = (device) => {
+  static createAxiosClient = (device) => {
     let axiosClient = null;
 
     switch (device.type) {
@@ -70,6 +73,7 @@ class DeviceManager {
       (response) => response,
       (error) => ErrorManager.axiosErrorHandler(error),
     );
+    axiosClient.defaults.timeout = 5000;
     return axiosClient;
   }
 
@@ -90,9 +94,9 @@ class DeviceManager {
    * Sets the authentication token of the device
    * @param {string} authToken Authentication Token for device
    */
-  set authentication(authToken) {
+  set authToken(authToken) {
     this.device.authToken = authToken;
-    this.axiosClient = this.#createAxiosClient(this.device);
+    this.axiosClient = DeviceManager.createAxiosClient(this.device);
     this.save();
   }
 
@@ -101,7 +105,7 @@ class DeviceManager {
    *
    * @returns {string} Device authorization token
    */
-  get authentication() { return this.device.authToken; }
+  get authToken() { return this.device.authToken; }
 
   /**
    * Get the authentication token of the device
@@ -146,74 +150,38 @@ class DeviceManager {
  * If extStreamControlActive is being set from false to true,
  * automatically activates validation process
  *
- * @param {boolean} currentlyActive Device is currently
+ * @param {boolean} activate Device is currently
  * allowing external stream control over socket connection
+ *
+ * @return {Promise<boolean>} Returns resolved promise indicating if stream control is active
+ *
  */
-  set extStreamControlActive(currentlyActive) {
-    if (currentlyActive !== this.#extStreamControlActive) {
-      if (this.#extStreamControlActive === false && currentlyActive) {
-        this.#extStreamControlActive = currentlyActive;
-        this.#dispatch(DeviceActions.activateStreamControlValidation(this));
-        this.save();
-      } else {
-        this.#extStreamControlActive = currentlyActive;
+  async extStreamControlOn(activate) {
+    try {
+      // If paramater is being changed
+      if (activate !== this.#extStreamControlActive) {
+        // If paramater gets changed from false to true
+        if (this.#extStreamControlActive === false && activate) {
+          await this.activateStreamControlOnDevice();
+        }
+        this.#extStreamControlActive = activate;
         this.save();
       }
+      return this.#extStreamControlActive;
+    } catch (err) {
+      console.warn(`Unable to set stream control of device to ${activate}`);
+      return err;
     }
   }
 
   /**
  * Gets extStreamControlActive
  *
+ * @return {boolean}
+ *
  */
   get extStreamControlActive() {
     return this.#extStreamControlActive;
-  }
-
-  /**
- * Gets steam control version for panel type
- *
- */
-  get streamControlVersion() {
-    if (this.type === 'CANVAS') {
-      return 'v2';
-    }
-    return 'v1';
-  }
-
-
-  /**
- * Activates external control stream on device
- *
- * @returns {Promise} Return Promise<HttpError> if device not authenticated
- */
-  async activateStreamControl() {
-    let response;
-
-    try {
-      switch (this.device.type) {
-        case 'NANOLEAF':
-          response = await this.axiosClient.put('effects', { write: { command: 'display', animType: 'extControl' } }).then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully activated effect stream', httpResponse.data)).catch((err) => err);
-          this.socketController = new DeviceSocketController(
-            response.data.streamControlIpAddr,
-            response.data.streamControlPort,
-            response.data.streamControlProtocol,
-          );
-          this.extStreamControlActive = true;
-          break;
-        case 'HUE':
-          break;
-        case 'LIFT':
-          break;
-        default:
-          break;
-      }
-      this.save();
-    } catch (err) {
-      return err;
-    }
-
-    return response;
   }
 
   /**
@@ -224,6 +192,120 @@ class DeviceManager {
     this.#dispatch(DeviceActions.activateStreamControlValidation(this));
   }
 
+
+  /**
+ * Begin streaming device state to device through stream socket
+ *
+ * @param {boolean} activate Set true to begin streaming device state, false to cancel
+ *
+ * @return {Promise<boolean>} Returns resolved promise indicating if
+ * streaming device state is active
+ *
+ */
+  async activateStreamingDeviceState(activate) {
+    try {
+      if (activate) {
+        // Makes sure device stream control connection is active
+        await this.extStreamControlOn(true);
+        this.#streamDeviceState = true;
+        // Start streaming device state cycle
+        this.#dispatch(DeviceActions.activateStreamingDeviceState(this));
+      } else {
+        this.#streamDeviceState = false;
+      }
+      this.save();
+      return this.#streamDeviceState;
+    } catch (err) {
+      console.warn('Failed to activate streaming of device state');
+      return err;
+    }
+  }
+
+  /**
+ * Defines if streaming of device state is currently active
+ *
+ * @return {boolean} Returns true if device stream control socket is active and
+ * device is actively streaming state
+ *
+ */
+  get streamingState() {
+    if (this.extStreamControlActive && this.#streamDeviceState) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+ * Sends device current state of light segmants to stream control socket
+ *
+ * @returns {array} Current device state
+ *
+ */
+  sendDeviceStateThroughSocket() {
+    const outputArray = [];
+    switch (this.device.type) {
+      case 'NANOLEAF': {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const key of Object.keys(this.device.lightSegmants)) {
+          outputArray.push(this.device.lightSegmants[key]);
+        }
+        break;
+      }
+      case 'HUE':
+        break;
+      case 'LIFT':
+        break;
+      default:
+        break;
+    }
+    this.lightInterface.updateLightThroughStreamControl(outputArray);
+    return outputArray;
+  }
+
+
+  /**
+ * Activates external control stream on device, updates light segmants of device and starts connection validation cycle
+ *
+ * @returns {Promise} Return Promise<HttpError> if device not authenticated. Returns <HttpResponse> if successful
+ */
+  async activateStreamControlOnDevice() {
+    let response;
+
+    try {
+      switch (this.device.type) {
+        case 'NANOLEAF': {
+          // Requests Nanoleaf device to enter extControl mode
+          response = await this.axiosClient.put('effects', { write: { command: 'display', animType: 'extControl' } }).then((httpResponse) => new HttpResponse(httpResponse.status, 'successfully activated effect stream', httpResponse.data));
+          // Updates light segmants before streaming
+          await this.updateLightSegmants();
+          // Create socket with response IP and Port
+          this.socketController = new DeviceSocketController(
+            response.data.streamControlIpAddr,
+            response.data.streamControlPort,
+            response.data.streamControlProtocol,
+          );
+          // Initializes socket on socket controller
+          await this.socketController.initialize();
+          this.#extStreamControlActive = true;
+          break;
+        }
+        case 'HUE':
+          break;
+        case 'LIFT':
+          break;
+        default:
+          break;
+      }
+      this.save();
+      // Activate stream control validation cycle in background
+      this.activateStreamControlValidation();
+      return response;
+    } catch (err) {
+      console.warn('Failed to activate stream control');
+      return err;
+    }
+  }
+
   //
   // ─── LAYOUT FUNCTIONS ─────────────────────────────────────────────────────────
   //
@@ -231,7 +313,7 @@ class DeviceManager {
   /**
  * Updates device light segmants from infomation received from main light device
  *
- * @return {Object} Light segmants
+ * @return {Promise} Device light segmants
  *
  */
   async updateLightSegmants() {
@@ -268,12 +350,12 @@ class DeviceManager {
         default:
           break;
       }
+      this.save();
+      return this.device.lightSegmants;
     } catch (err) {
       console.warn('Failed to update light segmants');
+      return err;
     }
-
-    this.save();
-    return this.device.lightSegmants;
   }
 }
 

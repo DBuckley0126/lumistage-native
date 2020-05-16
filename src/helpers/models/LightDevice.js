@@ -23,7 +23,31 @@ class LightDevice {
     this.uuid = device.uuid;
     this.location = new URL(device.location);
     this.authToken = device.auth ? device.auth : null;
-    this.lightSegmants = device.lightSegmants ? device.lightSegmants : null;
+    this.lightSegmants = device.lightSegmants ? device.lightSegmants : {};
+  }
+
+  /**
+ * Get stream control version for light segmants types
+ *
+ * @return {string} stream control version
+ *
+ */
+  get streamControlVersion() {
+    switch (this.type) {
+      case 'NANOLEAF': {
+        const keyArray = Object.keys(this.lightSegmants);
+        if (keyArray.length >= 1 && this.lightSegmants[keyArray[0]].streamControlVersion) {
+          return this.lightSegmants[keyArray[0]].streamControlVersion;
+        }
+        return 'v1';
+      }
+      case 'HUE':
+        return undefined;
+      case 'LIFT':
+        return undefined;
+      default:
+        return undefined;
+    }
   }
 
   /**

@@ -9,6 +9,7 @@ const { Buffer } = require('buffer/');
  * @property {string} ip - IP Address of socket connection
  * @property {number} port - Port of socket connection
  * @property {number} protocol - Protocol of socket Connection
+ * @property {boolean} initialized - True if object is initialized
  *
  */
 class DeviceSocketController {
@@ -16,21 +17,40 @@ class DeviceSocketController {
  * Creates a DeviceStreamController
  * @param {string} ip - IP Address of socket connection
  * @param {number} port - Port of socket connection
- * @param {string} protocol - Protocol of socket Connection
+ * @param {string} protocol - Protocol of socket connection
  */
   constructor(ip, port, protocol) {
+    this.initialized = false;
     this.protocol = protocol;
     this.ip = ip;
     this.port = port;
-    this.socket = DeviceSocketController.createSocket();
+    this.socket = null;
+  }
+
+  /**
+ * Initialises object with socket connection
+ *
+ * @returns {Promise}
+ */
+  async initialize() {
+    try {
+      this.socket = await DeviceSocketController.createSocket(this.port);
+      this.initialized = true;
+    } catch (err) {
+      console.warn('Failed to initialize DeviceSocketController');
+      console.warn(err);
+      this.initialized = false;
+    }
   }
 
   /**
  * Creates a socket
  *
- * @returns {dgram.Socket} Returns binded socket
+ * @param {number} port - Port of socket connection
+ *
+ * @returns {Promise<dgram.Socket>} Returns binded socket
  */
-  static createSocket() {
+  static async createSocket(port) {
     const socket = dgram.createSocket('udp4');
 
     socket.on('error', (err) => {
@@ -45,7 +65,9 @@ class DeviceSocketController {
       console.log('Device stream socket listening');
     });
 
-    return socket;
+    return new Promise((resolve) => {
+      socket.bind(port, () => resolve(socket));
+    });
   }
 
   /**
@@ -53,15 +75,16 @@ class DeviceSocketController {
  * @param {any} message - What is sent through socket connection
  */
   send(message) {
-    const buffer = Buffer.from(message);
-
-    this.socket.send(
-      buffer,
-      0,
-      buffer.length,
-      this.port,
-      this.ip,
-    );
+    if (this.initialized) {
+      const buffer = Buffer.from(message);
+      this.socket.send(
+        buffer,
+        0,
+        buffer.length,
+        this.port,
+        this.ip,
+      );
+    }
   }
 }
 

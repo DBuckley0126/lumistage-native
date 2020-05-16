@@ -33,9 +33,8 @@ function* attemptNanoleafAuthentication(action) {
       } else {
         response = yield manager.axiosClient.post('new');
       }
-
       // Sets authentication of deivce
-      manager.authentication = response.data.auth_token;
+      manager.authToken = response.data.auth_token;
       // Update app authenication status to false
       yield put(AppActions.updateAuthAttemptStatus(false));
       break;

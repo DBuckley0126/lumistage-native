@@ -29,3 +29,14 @@ export const activateStreamControlValidation = (payload) => ({
   type: 'ACTIVATE_STREAM_CONTROL_VALIDATION',
   payload,
 });
+
+/**
+ * Redux Saga action to active streaming of device state through active socket connection
+ *
+ * @param {import('../helpers/DeviceManager').default} payload - Nanoleaf DeviceManager
+ * @returns {Object} Redux action
+ */
+export const activateStreamingDeviceState = (payload) => ({
+  type: 'ACTIVATE_STREAMING_DEVICE_STATE',
+  payload,
+});

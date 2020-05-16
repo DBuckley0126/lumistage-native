@@ -89,14 +89,12 @@ const App = () => {
     }
   };
 
-  const testAuthentication = async () => {
+  const testAuthentication = () => {
     const manager = managers[Object.keys(managers)[0]];
 
     console.log(manager.authenticated);
-    const infomationResponse = await manager.lightInterface.infomation;
-    console.log(infomationResponse);
-    const powerStatusResponse = await manager.lightInterface.powerStatus;
-    console.log(powerStatusResponse);
+    manager.lightInterface.infomation.then((response) => console.log(response));
+    manager.lightInterface.powerStatus.then((response) => console.log(response));
   };
 
   const turnOn = () => {
@@ -109,23 +107,20 @@ const App = () => {
     manager.lightInterface.turnOff();
   };
 
-  const streamControl = () => {
+  // const extStreamControl = () => {
+  //   const manager = managers[Object.keys(managers)[0]];
+  //   manager.extStreamControlOn(true);
+  // };
+
+  const startStreamingDevice = () => {
     const manager = managers[Object.keys(managers)[0]];
-    manager.activateStreamControl();
+    manager.activateStreamingDeviceState(true);
   };
 
-  const streamChange = () => {
-    const manager = managers[Object.keys(managers)[0]];
-    const panel1 = new NanoleafPanel('PANEL', 6, 255, 0, 255, 0, { transition: 1 });
-    const panel2 = new NanoleafPanel('PANEL', 107, 255, 255, 0, 0, { transition: 1 });
-    const panel3 = new NanoleafPanel('PANEL', 165, 0, 255, 255, 0, { transition: 1 });
-    manager.lightInterface.updateThroughStreamControl([panel1, panel2, panel3]);
-  };
-
-  const updateLightSegmants = () => {
-    const manager = managers[Object.keys(managers)[0]];
-    console.log(manager.updateLightSegmants());
-  };
+  // const updateLightSegmants = () => {
+  //   const manager = managers[Object.keys(managers)[0]];
+  //   manager.updateLightSegmants();
+  // };
 
   return (
     <>
@@ -160,24 +155,24 @@ const App = () => {
               }}
               title="Turn Off"
             />
-            <Button
+            {/* <Button
               onPress={() => {
-                streamControl();
+                extStreamControl();
               }}
               title="Activate stream control"
-            />
+            /> */}
             <Button
               onPress={() => {
-                streamChange();
+                startStreamingDevice();
               }}
-              title="Change stream"
+              title="Start streaming device state"
             />
-            <Button
+            {/* <Button
               onPress={() => {
                 updateLightSegmants();
               }}
               title="Update light segmants"
-            />
+            /> */}
             { authenticating ? (
               <Text>Authenticating</Text>
             ) : null}

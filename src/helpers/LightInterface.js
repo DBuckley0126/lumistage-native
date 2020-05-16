@@ -312,24 +312,24 @@ class LightInterface {
   /**
  * Sets color of device through external stream control
  *
- * @param {Array.<import('./models/NanoleafPanel').default>} individialLights - Array of
+ * @param {Array.<import('./models/NanoleafPanel').default>} lightSegmants - Array of
  * indivial light objects
  *
  */
-  updateThroughStreamControl(individialLights) {
+  updateLightThroughStreamControl(lightSegmants) {
     if (this.deviceManager.extStreamControlActive) {
       switch (this.deviceManager.type) {
         case 'NANOLEAF': {
-          const nPanels = this.deviceManager.streamControlVersion === 'v1' ? individialLights.length : intToBigEndian(individialLights.length);
+          const nPanels = this.deviceManager.device.streamControlVersion === 'v1' ? lightSegmants.length : intToBigEndian(lightSegmants.length);
           const outputArray = [nPanels];
 
           // eslint-disable-next-line no-restricted-syntax
-          for (const light of individialLights) {
+          for (const lightSegmant of lightSegmants) {
             const {
               id, red, green, blue, white,
-            } = light;
-            const transitionTime = light.config.transition;
-            if (this.deviceManager.streamControlVersion === 'v1') {
+            } = lightSegmant;
+            const transitionTime = lightSegmant.config.transition;
+            if (this.deviceManager.device.streamControlVersion === 'v1') {
               // Version 1 requires the amount of frames per request message
               outputArray.push(
                 id,
