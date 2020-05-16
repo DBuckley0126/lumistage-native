@@ -44,6 +44,25 @@ class DeviceSocketController {
   }
 
   /**
+ * Closes socket connection and stop listening for data on it
+ *
+ * @returns {Promise}
+ */
+  async closeSocket() {
+    this.initialized = false;
+    try {
+      return new Promise((resolve) => {
+        this.socket.close(() => resolve());
+      });
+    } catch (err) {
+      console.warn('Failed to close socket connection');
+      console.warn(err);
+      this.initialized = false;
+      return Promise.reject(err);
+    }
+  }
+
+  /**
  * Creates a socket
  *
  * @param {number} port - Port of socket connection

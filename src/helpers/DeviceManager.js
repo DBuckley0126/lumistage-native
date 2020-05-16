@@ -150,8 +150,8 @@ class DeviceManager {
  * If extStreamControlActive is being set from false to true,
  * automatically activates validation process
  *
- * @param {boolean} activate Device is currently
- * allowing external stream control over socket connection
+ * @param {boolean} activate Sets if device is currently
+ * allowing external stream control over socket connection or not
  *
  * @return {Promise<boolean>} Returns resolved promise indicating if stream control is active
  *
@@ -161,8 +161,11 @@ class DeviceManager {
       // If paramater is being changed
       if (activate !== this.#extStreamControlActive) {
         // If paramater gets changed from false to true
-        if (this.#extStreamControlActive === false && activate) {
+        if (activate === true) {
           await this.activateStreamControlOnDevice();
+        } else {
+          await this.socketController.closeSocket();
+          this.socketController = null;
         }
         this.#extStreamControlActive = activate;
         this.save();

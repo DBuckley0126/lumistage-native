@@ -122,6 +122,30 @@ const App = () => {
   //   manager.updateLightSegmants();
   // };
 
+  const updateLightSegmantsRed = () => {
+    const manager = managers[Object.keys(managers)[0]];
+    // eslint-disable-next-line no-restricted-syntax
+    for (const id of Object.keys(manager.device.lightSegmants)) {
+      manager.device.lightSegmants[id].red = 255;
+      manager.device.lightSegmants[id].green = 0;
+      manager.device.lightSegmants[id].blue = 0;
+      manager.device.lightSegmants[id].config = { ...manager.device.lightSegmants[id].config, transition: 1 };
+    }
+    console.log('Completed change to red');
+  };
+
+  const updateLightSegmantsBlue = () => {
+    const manager = managers[Object.keys(managers)[0]];
+    // eslint-disable-next-line no-restricted-syntax
+    for (const id of Object.keys(manager.device.lightSegmants)) {
+      manager.device.lightSegmants[id].red = 0;
+      manager.device.lightSegmants[id].green = 0;
+      manager.device.lightSegmants[id].blue = 255;
+      manager.device.lightSegmants[id].config = { ...manager.device.lightSegmants[id].config, transition: 10 };
+    }
+    console.log('Completed change to blue');
+  };
+
   return (
     <>
       <StatusBar barStyle="dark-content" />
@@ -155,24 +179,24 @@ const App = () => {
               }}
               title="Turn Off"
             />
-            {/* <Button
-              onPress={() => {
-                extStreamControl();
-              }}
-              title="Activate stream control"
-            /> */}
             <Button
               onPress={() => {
                 startStreamingDevice();
               }}
               title="Start streaming device state"
             />
-            {/* <Button
+            <Button
               onPress={() => {
-                updateLightSegmants();
+                updateLightSegmantsRed();
               }}
-              title="Update light segmants"
-            /> */}
+              title="Update light segmants RED"
+            />
+            <Button
+              onPress={() => {
+                updateLightSegmantsBlue();
+              }}
+              title="Update light segmants BLUE"
+            />
             { authenticating ? (
               <Text>Authenticating</Text>
             ) : null}
