@@ -16,6 +16,7 @@ import {
   Text,
   StatusBar,
   Button,
+  Animated,
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -23,7 +24,7 @@ import Env from '../Env';
 import DeviceManager from './helpers/DeviceManager';
 import DeviceDiscoveryManager from './helpers/DeviceDiscoveryManager';
 import Colours from './helpers/Colours';
-import { NanoleafPanel } from './helpers/models/index';
+import Fade from './Fade';
 
 const styles = StyleSheet.create({
   scrollView: {
@@ -206,6 +207,7 @@ const App = () => {
           </View>
         </ScrollView>
       </SafeAreaView>
+      <Fade />
     </>
   );
 };
