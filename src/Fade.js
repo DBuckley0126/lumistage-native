@@ -13,6 +13,7 @@ import {
   findNodeHandle,
   NativeModules,
 } from 'react-native';
+
 import Path from './custom_npm_modules/paths-js/src/path';
 
 const inside = require('point-in-polygon');
