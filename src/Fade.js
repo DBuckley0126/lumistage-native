@@ -1,8 +1,9 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useSpring, animated, interpolate } from 'react-spring';
-import { WebView } from 'react-native-webview';
 
+
+import { WebView } from 'react-native-webview';
 import {
   Text,
   View,
@@ -12,9 +13,13 @@ import {
   findNodeHandle,
   NativeModules,
 } from 'react-native';
+import Path from './custom_npm_modules/paths-js/src/path';
+
+const inside = require('point-in-polygon');
 
 
 const RCTUIManager = NativeModules.UIManager;
+
 
 const styles = StyleSheet.create({
   container: {
@@ -54,7 +59,7 @@ const styles = StyleSheet.create({
 });
 
 const Fade = () => {
-  let componentRef = useRef();
+  const componentRef = useRef();
   const [fade, setFade] = useState(true);
   // const fadeSpring = useSpring({
   //   backgroundColor: fade ? 'tomato' : 'green',
@@ -62,6 +67,21 @@ const Fade = () => {
   //   width: 400,
   //   height: 200,
   // });
+
+  const path = Path()
+    .moveto(350, 350)
+    .lineto(450, 350)
+    .lineto(450, 250)
+    .lineto(350, 250)
+    .closepath();
+
+    const inner = inside([3570, 300], path.points());
+
+  // const transformedPath = path
+  //   .translate(0, 100)
+  //   .scale(1, 1.5);
+
+  debugger;
 
 
   const { xyz, backgroundColor } = useSpring({
@@ -77,7 +97,6 @@ const Fade = () => {
   // })
 
   useEffect(() => {
-    console.log(componentRef);
     // RCTUIManager.measure(findNodeHandle(measureRef.current), (fx, fy, width, height, px, py) => {
     //   console.log(`Component width is: ${width}`);
     //   console.log(`Component height is: ${height}`);
@@ -86,10 +105,41 @@ const Fade = () => {
     //   console.log(`X offset to page: ${px}`);
     //   console.log(`Y offset to page: ${py}`);
     // });
+  //   if (!fade) {
+  //     componentRef.current.injectJavaScript(`
+  //     color = color === 'red' ? 'green' : 'red'
+  //     rad = rad === 20 ? 10 : 20;
+  //     true;
+  // `);
+  //   }
+    componentRef.current.injectJavaScript(runFirst);
   });
 
   const AnimatedView = animated(View);
 
+
+  const runFirst = `
+  const drawMeeee = () => {
+   ctx.clearRect(0, 0, 400, 400);
+   if (ball.x > canvas.width - rad || ball.x < rad) moveX = -moveX;
+   if (ball.y > canvas.height - rad || ball.y < rad) moveY = -moveY;
+   ball.x += moveX;
+   ball.y += moveY;
+   ctx.beginPath();
+   ctx.fillStyle = color;
+   ctx.arc(ball.x, ball.y, rad, 0, Math.PI * 2);
+   ctx.fill();
+   ctx.closePath();
+
+   // var imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
+   // window.ReactNativeWebView.postMessage(getPixelXY(imgData, 200, 200))
+  }
+  setInterval(drawMeeee, 16.66);
+  true;
+`;
+
+
+  const html = '<canvas id="myCanvas" width="400" height="400" style="border:1px solid #400000;"></canvas>';
 
   return (
     <>
@@ -119,7 +169,18 @@ const Fade = () => {
       >
         <Text>Hello</Text>
       </AnimatedView> */}
-      <WebView source={{ uri: 'https://reactnative.dev/' }} />
+      <WebView
+        ref={componentRef}
+        originWhitelist={['*']}
+        source={{ html }}
+        injectedJavaScript={runFirst}
+        onMessage={(event) => {
+          console.log(event.nativeEvent.data);
+        }}
+        onError={(error) => {
+          console.log(error);
+        }}
+      />
     </>
   );
 };

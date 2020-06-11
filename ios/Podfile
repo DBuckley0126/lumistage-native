@@ -78,7 +78,6 @@ target 'lumistageNative' do
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
 
-
   target 'lumistageNativeTests' do
     inherit! :complete
     # Pods for testing

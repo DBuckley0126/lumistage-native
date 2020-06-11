@@ -198,6 +198,13 @@ const App = () => {
               }}
               title="Update light segmants BLUE"
             />
+            <Button
+              onPress={() => {
+                updateLightSegmantsBlue();
+              }}
+              title="Change animation"
+            />
+
             { authenticating ? (
               <Text>Authenticating</Text>
             ) : null}

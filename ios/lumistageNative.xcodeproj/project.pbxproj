@@ -181,6 +181,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				5869C3BFDC0FCBFF2467A037 /* Pods */,
+				110B5AADC84B46DCB199DF93 /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
